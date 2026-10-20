@@ -239,7 +239,7 @@
       </div>
     </section>
 
-    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ & PHÂN CÔNG (VỊ TRÍ THỨ 2) ================= -->
+    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ & PHÂN CÔNG (VỊ TRÍ THỨ 2 TỪ TRÁI SANG) ================= -->
     <section id="tab-danhsach" class="space-y-4 hidden">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex justify-between items-center border-b pb-2">
@@ -422,7 +422,7 @@
         <i class="ph ph-qr-code text-xl mb-0.5"></i>
         <span>Điểm danh</span>
       </button>
-      <!-- 2. Danh sách (Vị trí thứ 2 từ trái sang) -->
+      <!-- 2. Danh sách (Thứ 2 từ trái sang) -->
       <button onclick="switchTab('danhsach')" id="nav-danhsach" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
         <i class="ph ph-users-three text-xl mb-0.5"></i>
         <span>Danh sách</span>
@@ -513,6 +513,7 @@
     function syncAndLoadPersonnel() {
       const mgrVal = document.getElementById("mgrSchoolSelect").value;
       const ctvVal = document.getElementById("ctvSchoolSelect").value;
+      // Ưu tiên lựa chọn ở tab Quản lý
       const targetSchool = mgrVal || ctvVal;
 
       const pSelect = document.getElementById("personnelSchoolSelect");
@@ -533,7 +534,7 @@
       else alert("Vui lòng chọn chương trình!");
     }
 
-    // --- TẢI DANH SÁCH NHÂN SỰ TỪ FILE PHÂN CÔNG ---
+    // --- TẢI DANH SÁCH NHÂN SỰ TỪ FILE PHÂN CÔNG ĐÃ TÌM ĐƯỢC ---
     async function loadPersonnelList(schoolName) {
       if (!schoolName) return;
 
@@ -655,7 +656,7 @@
       }
     }
 
-    // --- QUẢN TRỊ VIÊN PHÂN CÔNG BỔ SUNG ---
+    // --- QUẢN TRỊ VIÊN PHÂN CÔNG ---
     function handleAssignClick(maCTV, hoTenEscaped, sdt, timeIn, timeOut) {
       const hoTen = unescape(hoTenEscaped);
       const teamSelect = document.getElementById(`teamSelect_${maCTV}`);
@@ -744,6 +745,37 @@
       }
     }
 
+    // --- TẢI DANH SÁCH CHƯƠNG TRÌNH ---
+    async function loadPrograms() {
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getPrograms`);
+        const data = await res.json();
+        if (data.success) {
+          allPrograms = data.programs;
+          populateSchoolDropdowns();
+          renderAdminPrograms();
+        }
+      } catch (e) {
+        console.error("Lỗi tải trường:", e);
+      }
+    }
+
+    function populateSchoolDropdowns() {
+      const ctvSelect = document.getElementById("ctvSchoolSelect");
+      const mgrSelect = document.getElementById("mgrSchoolSelect");
+      const personnelSelect = document.getElementById("personnelSchoolSelect");
+
+      const ongoing = allPrograms.filter(p => p.status === "Đang diễn ra");
+      const optionsHtml = ongoing.length > 0
+        ? `<option value="">-- Chọn trường đang diễn ra hôm nay --</option>` +
+          ongoing.map(p => `<option value="${p.name}">${p.name}</option>`).join("")
+        : `<option value="">-- Không có trường nào đang diễn ra hôm nay --</option>`;
+
+      ctvSelect.innerHTML = optionsHtml;
+      mgrSelect.innerHTML = optionsHtml;
+      personnelSelect.innerHTML = optionsHtml;
+    }
+
     // --- CHỤP ẢNH SELFIE (CHỈ DÙNG WEBCAM) ---
     async function startSelfieCamera() {
       const video = document.getElementById("selfieVideo");
@@ -765,7 +797,7 @@
         showFullScreenAlert({
           statusType: "warning",
           title: "KHÔNG THỂ BẬT CAMERA",
-          subtitle: "Vui lòng cấp quyền truy cập Camera trên trình duyệt của bạn!"
+          subtitle: "Vui lòng cho phép quyền truy cập Camera trên trình duyệt của bạn!"
         });
       }
     }
@@ -867,7 +899,7 @@
         const data = await res.json();
 
         if (data.success) {
-          // Thông báo inline này được giữ nguyên
+          // Thông báo này giữ nguyên inline theo yêu cầu
           statusText.innerText = "✓ Ảnh đã tải lên và lưu link thành công!";
           statusText.className = "text-xs text-center font-bold text-emerald-600";
           checkMyAttendance("checkin");
@@ -883,7 +915,7 @@
       }
     }
 
-    // --- TẠO MÃ QR ĐIỂM DANH (CORRECT LEVEL L BẮT NÉT NHANH) ---
+    // --- TẠO MÃ QR ĐIỂM DANH ---
     function generateCtvQR() {
       const school = document.getElementById("ctvSchoolSelect").value;
       if (!school) {
@@ -922,9 +954,9 @@
         if (typeof QRCode !== "undefined") {
           new QRCode(container, {
             text: unescape(encodeURIComponent(qrPayloadStr)),
-            width: 200,
-            height: 200,
-            correctLevel: QRCode.CorrectLevel.L // Ô vuông to, nhạy tức thì
+            width: 190,
+            height: 190,
+            correctLevel: QRCode.CorrectLevel.M
           });
 
           setTimeout(() => {
@@ -939,7 +971,7 @@
         }
       } catch (err) {
         const img = document.createElement("img");
-        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(qrPayloadStr);
+        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=" + encodeURIComponent(qrPayloadStr);
         img.alt = "Mã QR";
         img.className = "w-48 h-48 mx-auto rounded-xl shadow-sm";
         container.appendChild(img);
@@ -1026,7 +1058,7 @@
       }
     }
 
-    // --- TAB QUẢN LÝ: CAMERA QUÉT PHẦN CỨNG SIÊU NHẠY ---
+    // --- TAB QUẢN LÝ ---
     function setScanMode(mode) {
       selectedScanMode = mode;
       const badge = document.getElementById("scanModeBadge");
@@ -1058,23 +1090,8 @@
       document.getElementById("btnStartScanner").disabled = true;
       document.getElementById("btnStopScanner").disabled = false;
 
-      // KÍCH HOẠT GIẢI MÃ PHẦN CỨNG NATIVE CỦA ĐIỆN THOẠI
-      html5QrScanner = new Html5Qrcode("reader", {
-        experimentalFeatures: {
-          useBarCodeDetectorIfSupported: true // Đọc mã tức thì < 0.1s
-        },
-        verbose: false
-      });
-
-      const config = {
-        fps: 25, // Tần số 25 khung hình/giây
-        qrbox: function(viewfinderWidth, viewfinderHeight) {
-          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-          const size = Math.floor(minEdge * 0.85);
-          return { width: size, height: size };
-        },
-        aspectRatio: 1.0
-      };
+      html5QrScanner = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
 
       try {
         await html5QrScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
@@ -1100,9 +1117,6 @@
     }
 
     async function onScanSuccess(decodedText) {
-      // Phản hồi rung xúc giác ngay khi bắt được mã
-      if (navigator.vibrate) navigator.vibrate(80);
-
       if (html5QrScanner) html5QrScanner.pause();
 
       let qrData;
@@ -1167,7 +1181,7 @@
       }
     }
 
-    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH ---
+    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH (CHE HẦU HẾT MÀN HÌNH) ---
     function showFullScreenAlert(config) {
       const modal = document.getElementById("fullScreenFeedbackModal");
       const card = document.getElementById("feedbackCard");
@@ -1188,6 +1202,7 @@
         details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
         guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
       } else {
+        // Cảnh báo vàng: như ảnh người dùng gửi
         card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-amber-400 text-slate-900 border-amber-300";
         iconBox.innerHTML = `<i class="ph ph-warning-octagon text-7xl text-amber-900"></i>`;
         details.className = "bg-amber-100/90 rounded-2xl p-3 text-xs space-y-1 mb-4 font-semibold text-slate-900";
