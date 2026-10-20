@@ -23,6 +23,16 @@
     .custom-scroll::-webkit-scrollbar {
       display: none;
     }
+    /* FIX TRIỆT ĐỂ LỖI LỆCH MÃ QR: Ẩn canvas ngầm, căn giữa thẻ ảnh */
+    #qrcodeBox canvas {
+      display: none !important;
+    }
+    #qrcodeBox img {
+      display: block !important;
+      margin: 0 auto !important;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 pb-20 select-none">
@@ -42,7 +52,7 @@
     </button>
   </header>
 
-  <!-- ================= MODAL TOÀN MÀN HÌNH BÁO KẾT QUẢ QUÉT QR ================= -->
+  <!-- ================= MODAL CỬA SỔ TOÀN MÀN HÌNH BÁO QUÉT QR ================= -->
   <div id="fullScreenFeedbackModal" onclick="dismissScanModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm hidden cursor-pointer transition-all">
     <div id="feedbackCard" class="w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 transform transition-all scale-100">
       <div id="feedbackIconBox" class="mx-auto mb-2"></div>
@@ -178,7 +188,7 @@
         </div>
       </div>
 
-      <!-- 3. KHU VỰC QR ĐƯỢC THIẾT KẾ LẠI GỌN ĐẸP CHUẨN THẺ BADGE -->
+      <!-- 3. KHU VỰC QR THIẾT KẾ CHUẨN THẺ BADGE (CĂN GIỮA TUYỆT ĐỐI) -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 text-center space-y-3">
         <div class="flex items-center justify-center space-x-2 text-indigo-700 font-bold border-b pb-2">
           <i class="ph ph-qr-code text-xl"></i>
@@ -191,12 +201,12 @@
           <span>Tạo Mã QR Điểm Danh</span>
         </button>
 
-        <!-- KHUNG CHỨA QR VUÔNG VẮN, CÂN ĐỐI -->
+        <!-- KHUNG CHỨA QR: CĂN GIỮA, KHÔNG LỆCH -->
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center">
-          <div id="qrcodeBox" class="p-2 bg-white rounded-xl shadow border border-slate-200 flex items-center justify-center min-w-[200px] min-h-[200px]">
-            <div class="text-slate-400 text-xs text-center p-4 flex flex-col items-center">
-              <i class="ph ph-qr-code text-5xl mb-2 text-slate-300"></i>
-              <span>Bấm nút phía trên để tạo mã QR</span>
+          <div id="qrcodeBox" class="w-[210px] min-h-[210px] mx-auto flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-200 p-2">
+            <div class="text-slate-400 text-xs text-center flex flex-col items-center">
+              <i class="ph ph-qr-code text-5xl mb-1 text-slate-300"></i>
+              <span>Bấm nút để tạo mã</span>
             </div>
           </div>
           
@@ -204,7 +214,6 @@
           <div id="qrTimer" class="text-xs font-black mt-1"></div>
         </div>
 
-        <!-- CÁC NÚT KIỂM TRA TRẠNG THÁI -->
         <div class="pt-2 border-t space-y-2">
           <div class="grid grid-cols-2 gap-2">
             <button onclick="checkMyAttendance('checkin')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-bold border border-slate-300">
@@ -281,7 +290,7 @@
           <span>Xác Thực Quản Trị Viên</span>
         </div>
         <div class="space-y-3">
-          <p class="text-xs text-slate-500">Mật khẩu được đồng bộ trực tiếp tại ô <b>D1</b> trên Google Sheets.</p>
+          <p class="text-xs text-slate-500">Mật khẩu được đồng bộ trực tiếp tại ô <b>D1</b> trên Google Sheets[cite: 1].</p>
           <input type="password" id="adminPasswordInput" placeholder="Nhập mật khẩu Admin" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300">
           <button onclick="verifyAdminPassword()" class="w-full bg-indigo-600 text-white text-xs py-2.5 rounded-lg font-bold">Truy Cập Quản Trị</button>
         </div>
@@ -367,6 +376,9 @@
      * DÁN LINK WEB APP CỦA BẠN VÀO ĐÂY:
      */
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySYCvcT5YlGk_7aPKqUQYeYmko93k7Bby9bvnuKoNNkieQeKwQ8OQEtYllNlgYHsKFZw/exec";
+    
+    // MÃ API IMGBB ĐÃ CẤU HÌNH THEO TÀI KHOẢN CỦA BẠN
+    const IMGBB_API_KEY = "9b4a10db15d694a88f3aa0d1ffbc0669";
 
     let currentUser = null;
     let allPrograms = [];
@@ -712,6 +724,7 @@
       document.getElementById("btnCaptureSelfie").disabled = true;
     }
 
+    // --- TẢI ẢNH QUA IMGBB API ---
     async function uploadSelfieImage() {
       const school = document.getElementById("ctvSchoolSelect").value;
       const statusText = document.getElementById("uploadStatusText");
@@ -720,23 +733,43 @@
       if (!capturedWatermarkedBase64 || !school) return;
 
       btn.disabled = true;
-      statusText.innerText = "Đang tải ảnh lên Google Drive...";
+      statusText.innerText = "Đang tải ảnh lên kho lưu trữ ImgBB...";
       statusText.className = "text-xs text-center font-medium text-amber-600";
 
       try {
+        const cleanBase64 = capturedWatermarkedBase64.split(",")[1];
+        const formData = new FormData();
+        formData.append("image", cleanBase64);
+
+        // Đẩy ảnh trực tiếp lên ImgBB
+        const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        const imgbbData = await imgbbRes.json();
+
+        if (!imgbbData.success) {
+          throw new Error(imgbbData.error ? imgbbData.error.message : "Không thể tải ảnh lên ImgBB");
+        }
+
+        const directImageUrl = imgbbData.data.url;
+
+        // Lưu link vào Google Sheet
+        statusText.innerText = "Đang lưu link ảnh vào bảng tính...";
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
           body: JSON.stringify({
-            action: "uploadSelfie",
+            action: "saveSelfieUrl",
             maCTV: currentUser.maCTV,
             hoTen: currentUser.hoTen,
             sdt: currentUser.sdt,
             tenTruong: school,
             deviceId: localStorage.getItem("aba_device_id"),
-            base64Image: capturedWatermarkedBase64
+            imageUrl: directImageUrl
           })
         });
         const data = await res.json();
+
         if (data.success) {
           statusText.innerText = "✓ Ảnh đã tải lên và lưu link thành công!";
           statusText.className = "text-xs text-center font-bold text-emerald-600";
@@ -746,21 +779,21 @@
           statusText.className = "text-xs text-center font-bold text-red-600";
         }
       } catch (err) {
-        statusText.innerText = "Lỗi kết nối khi gửi ảnh: " + err.message;
+        statusText.innerText = "Lỗi gửi ảnh: " + err.message;
         statusText.className = "text-xs text-center font-bold text-red-600";
       } finally {
         btn.disabled = false;
       }
     }
 
-    // --- 1 NÚT TẠO MÃ QR ĐIỂM DANH DUY NHẤT (CHUẨN FORM GỌN ĐẸP) ---
+    // --- 1 NÚT TẠO MÃ QR DUY NHẤT & FIX TRIỆT ĐỂ LỖI LỆCH KHUNG ---
     function generateCtvQR() {
       const school = document.getElementById("ctvSchoolSelect").value;
       if (!school) return alert("Vui lòng chọn trường trước khi tạo mã QR!");
       if (!currentUser) return alert("Vui lòng xác thực tài khoản trước!");
 
       const container = document.getElementById("qrcodeBox");
-      container.innerHTML = "";
+      container.innerHTML = ""; // Xóa placeholder cũ
 
       const now = Date.now();
       const qrData = {
@@ -782,6 +815,17 @@
             height: 190,
             correctLevel: QRCode.CorrectLevel.M
           });
+
+          // Ép ẩn canvas ngầm và định dạng ảnh nằm chính giữa
+          setTimeout(() => {
+            const canvases = container.querySelectorAll("canvas");
+            canvases.forEach(c => c.style.display = "none");
+            const imgs = container.querySelectorAll("img");
+            imgs.forEach(img => {
+              img.style.display = "block";
+              img.style.margin = "0 auto";
+            });
+          }, 30);
         } else {
           throw new Error("Fallback");
         }
@@ -789,7 +833,7 @@
         const img = document.createElement("img");
         img.src = "https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=" + encodeURIComponent(qrPayloadStr);
         img.alt = "Mã QR";
-        img.className = "w-48 h-48 mx-auto";
+        img.className = "w-48 h-48 mx-auto rounded-xl shadow-sm";
         container.appendChild(img);
       }
 
@@ -864,8 +908,8 @@
         btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-600";
       } else {
         badge.innerText = "Chế độ: Check-out";
-        badge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-violet-100 text-violet-700";
-        btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-violet-500 bg-violet-50 text-violet-700";
+        badge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700";
+        btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-rose-500 bg-rose-50 text-rose-700";
         btnIn.className = "py-2 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-600";
       }
     }
@@ -921,7 +965,6 @@
       try {
         qrData = JSON.parse(decodedText);
       } catch (e) {
-        // KHÔNG THÀNH CÔNG -> MÀU VÀNG CẢNH BÁO
         showFullScreenFeedback({
           statusType: "warning",
           title: "MÃ QR KHÔNG HỢP LỆ",
@@ -950,7 +993,7 @@
 
         if (result.success) {
           if (selectedScanMode === "checkin") {
-            // CHECK-IN THÀNH CÔNG -> MÀU XANH LÁ
+            // CHECK-IN THÀNH CÔNG: XANH LÁ
             showFullScreenFeedback({
               statusType: "checkin_success",
               title: "CHECK IN THÀNH CÔNG",
@@ -962,7 +1005,7 @@
               ]
             });
           } else {
-            // CHECK-OUT THÀNH CÔNG -> MÀU ĐỎ (THEO YÊU CẦU MỚI)
+            // CHECK-OUT THÀNH CÔNG: ĐỎ
             showFullScreenFeedback({
               statusType: "checkout_success",
               title: "CHECK OUT THÀNH CÔNG",
@@ -975,7 +1018,7 @@
             });
           }
         } else {
-          // CHECK-IN / CHECK-OUT KHÔNG THÀNH CÔNG (CHƯA CHECK IN HOẶC LỖI) -> MÀU VÀNG CẢNH BÁO
+          // KHÔNG THÀNH CÔNG: VÀNG CẢNH BÁO
           showFullScreenFeedback({
             statusType: "warning",
             title: result.noCheckin ? "NHÂN SỰ CHƯA CHECK IN" : "ĐIỂM DANH CHƯA THÀNH CÔNG",
@@ -996,7 +1039,6 @@
       }
     }
 
-    // HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH ĐỔI MÀU THEO CHUẨN MỚI
     function showFullScreenFeedback(config) {
       const modal = document.getElementById("fullScreenFeedbackModal");
       const card = document.getElementById("feedbackCard");
@@ -1007,19 +1049,16 @@
       const guide = document.getElementById("feedbackTapGuide");
 
       if (config.statusType === "checkin_success") {
-        // XANH LÁ
         card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-emerald-600 text-white border-emerald-400";
         iconBox.innerHTML = `<i class="ph ph-check-circle text-7xl text-white"></i>`;
         details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
         guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
       } else if (config.statusType === "checkout_success") {
-        // ĐỎ (THEO YÊU CẦU MỚI)
         card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-red-600 text-white border-red-400";
         iconBox.innerHTML = `<i class="ph ph-sign-out text-7xl text-white"></i>`;
         details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
         guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
       } else {
-        // VÀNG CẢNH BÁO CHO TẤT CẢ TRƯỜNG HỢP KHÔNG THÀNH CÔNG
         card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-amber-400 text-slate-900 border-amber-300";
         iconBox.innerHTML = `<i class="ph ph-warning-octagon text-7xl text-amber-900"></i>`;
         details.className = "bg-amber-100/90 rounded-2xl p-3 text-xs space-y-1 mb-4 font-semibold text-slate-900";
