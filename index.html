@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hệ Thống Điểm Danh Nhân Sự - ABA</title>
+  <title>Hệ Thống Điểm Danh & Phân Công Nhân Sự - ABA</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -23,7 +23,6 @@
     .custom-scroll::-webkit-scrollbar {
       display: none;
     }
-    /* FIX TRIỆT ĐỂ LỖI LỆCH MÃ QR: Ẩn canvas ngầm, căn giữa thẻ ảnh */
     #qrcodeBox canvas {
       display: none !important;
     }
@@ -52,14 +51,14 @@
     </button>
   </header>
 
-  <!-- ================= MODAL CỬA SỔ TOÀN MÀN HÌNH BÁO QUÉT QR ================= -->
-  <div id="fullScreenFeedbackModal" onclick="dismissScanModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm hidden cursor-pointer transition-all">
+  <!-- ================= CỬA SỔ TOÀN MÀN HÌNH THÔNG BÁO CHO CTV & QUẢN LÝ ================= -->
+  <div id="fullScreenFeedbackModal" onclick="dismissModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm hidden cursor-pointer transition-all">
     <div id="feedbackCard" class="w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 transform transition-all scale-100">
       <div id="feedbackIconBox" class="mx-auto mb-2"></div>
       <h2 id="feedbackTitle" class="text-2xl font-black mb-1 tracking-wide"></h2>
       <p id="feedbackSubtitle" class="text-base font-bold mb-3"></p>
-      <div id="feedbackDetailsBox" class="rounded-2xl p-3 text-xs space-y-1 mb-4"></div>
-      <p id="feedbackTapGuide" class="text-xs font-semibold animate-pulse">👉 Chạm vào màn hình bất kỳ để tiếp tục quét</p>
+      <div id="feedbackDetailsBox" class="rounded-2xl p-3 text-xs space-y-1 mb-4 hidden"></div>
+      <p id="feedbackTapGuide" class="text-xs font-semibold animate-pulse">👉 Chạm vào màn hình bất kỳ để đóng</p>
     </div>
   </div>
 
@@ -78,6 +77,27 @@
           Xác Nhận
         </button>
         <button onclick="closeSwitchAccountModal()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
+          Hủy Bỏ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL XÁC THỰC ADMIN ĐỂ PHÂN CÔNG ================= -->
+  <div id="adminAssignAuthModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
+      <div class="flex items-center space-x-2 text-indigo-700 font-bold border-b pb-2">
+        <i class="ph ph-shield-check text-xl"></i>
+        <span>Quyền Quản Trị Phân Công</span>
+      </div>
+      <p class="text-xs text-slate-600">Chỉ người Quản trị mới có quyền phân công nhân sự bổ sung. Nhập mật khẩu Quản trị (ô <b>D1</b>):</p>
+      <input type="password" id="adminAssignPasswordInput" placeholder="Mật khẩu Admin..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+      <div id="adminAssignError" class="text-xs text-red-600 font-semibold hidden"></div>
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button onclick="confirmAdminAssignAuth()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
+          Xác Nhận
+        </button>
+        <button onclick="closeAdminAssignAuthModal()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
           Hủy Bỏ
         </button>
       </div>
@@ -128,12 +148,11 @@
     </div>
   </div>
 
-  <!-- ================= NỘI DUNG 3 TABS ================= -->
+  <!-- ================= NỘI DUNG 4 TABS ================= -->
   <main class="max-w-md mx-auto p-4">
 
     <!-- ================= TAB 1: ĐIỂM DANH (CTV) ================= -->
     <section id="tab-diemdanh" class="space-y-4">
-      <!-- 1. Chọn trường -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-3 border-b pb-2">
           <i class="ph ph-chalkboard-teacher text-xl"></i>
@@ -145,7 +164,7 @@
         <p class="text-[11px] text-slate-500 mt-1.5">* Hệ thống tự động lọc các chương trình đang diễn ra hôm nay</p>
       </div>
 
-      <!-- 2. Chụp ảnh Selfie Watermark -->
+      <!-- 2. Chụp ảnh Selfie Watermark (CHỈ ĐỂ BẬT CAM VÀ CHỤP ĐÓNG DẤU) -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-3 border-b pb-2">
           <i class="ph ph-camera text-xl"></i>
@@ -164,22 +183,17 @@
             </button>
           </div>
 
-          <label class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-semibold flex items-center justify-center space-x-1 border border-slate-300 cursor-pointer">
-            <i class="ph ph-camera-plus text-base text-indigo-600"></i>
-            <span>Hoặc Mở Máy Ảnh Điện Thoại Chụp</span>
-            <input type="file" id="nativeCameraInput" accept="image/*" capture="user" class="hidden" onchange="handleNativeCameraCapture(event)">
-          </label>
-
           <div class="relative bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-slate-300">
             <video id="selfieVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
             <img id="selfiePreview" class="w-full h-full object-cover hidden" alt="" />
             <div id="cameraPlaceholder" class="text-slate-400 text-center p-4">
               <i class="ph ph-camera text-4xl mb-1"></i>
-              <p class="text-xs">Bấm "Bật Camera" hoặc "Mở Máy Ảnh Điện Thoại"</p>
+              <p class="text-xs">Bấm "Bật Camera Web" ở trên để chụp ảnh</p>
             </div>
             <canvas id="watermarkCanvas" class="hidden"></canvas>
           </div>
 
+          <!-- Thông báo này giữ nguyên inline theo yêu cầu -->
           <button onclick="uploadSelfieImage()" id="btnUploadSelfie" class="w-full hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-lg font-bold flex items-center justify-center space-x-1 shadow">
             <i class="ph ph-cloud-arrow-up text-base"></i>
             <span>Gửi Ảnh Lên Hệ Thống</span>
@@ -188,25 +202,23 @@
         </div>
       </div>
 
-      <!-- 3. KHU VỰC QR THIẾT KẾ CHUẨN THẺ BADGE (CĂN GIỮA TUYỆT ĐỐI) -->
+      <!-- 3. KHU VỰC QR ĐIỂM DANH -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 text-center space-y-3">
         <div class="flex items-center justify-center space-x-2 text-indigo-700 font-bold border-b pb-2">
           <i class="ph ph-qr-code text-xl"></i>
           <span>3. Mã QR Điểm Danh Cá Nhân</span>
         </div>
 
-        <!-- 1 NÚT DUY NHẤT -->
         <button onclick="generateCtvQR()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white text-sm py-3 rounded-xl font-bold shadow-md flex items-center justify-center space-x-2">
           <i class="ph ph-qr-code text-xl"></i>
           <span>Tạo Mã QR Điểm Danh</span>
         </button>
 
-        <!-- KHUNG CHỨA QR: CĂN GIỮA, KHÔNG LỆCH -->
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center">
           <div id="qrcodeBox" class="w-[210px] min-h-[210px] mx-auto flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-200 p-2">
             <div class="text-slate-400 text-xs text-center flex flex-col items-center">
               <i class="ph ph-qr-code text-5xl mb-1 text-slate-300"></i>
-              <span>Bấm nút để tạo mã</span>
+              <span>Bấm nút để tạo mã QR</span>
             </div>
           </div>
           
@@ -223,12 +235,63 @@
               Kiểm tra check out
             </button>
           </div>
-          <div id="ctvCheckResult" class="text-xs font-semibold p-2.5 rounded-lg hidden"></div>
         </div>
       </div>
     </section>
 
-    <!-- ================= TAB 2: QUẢN LÝ HIỆN TRƯỜNG ================= -->
+    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ & PHÂN CÔNG (VỊ TRÍ THỨ 2 TỪ TRÁI SANG) ================= -->
+    <section id="tab-danhsach" class="space-y-4 hidden">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+          <div class="flex items-center space-x-2 text-indigo-700 font-bold">
+            <i class="ph ph-users-three text-xl"></i>
+            <span>Danh Sách Nhân Sự Phân Công</span>
+          </div>
+          <button onclick="refreshPersonnelList()" class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg font-bold border border-indigo-200 flex items-center space-x-1 shadow-sm">
+            <i class="ph ph-arrows-clockwise text-sm"></i>
+            <span>Làm mới</span>
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Chương trình đang xem</label>
+          <select id="personnelSchoolSelect" onchange="loadPersonnelList(this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
+            <option value="">-- Đang đồng bộ chương trình --</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">* Ưu tiên đồng bộ theo Tab Quản lý (hoặc Tab Điểm danh)</p>
+        </div>
+
+        <!-- Thống kê quân số -->
+        <div id="personnelSummaryBar" class="grid grid-cols-4 gap-1.5 text-center pt-1 hidden">
+          <div class="bg-slate-100 p-2 rounded-lg border border-slate-200">
+            <span class="block text-[10px] text-slate-500 font-semibold">TỔNG</span>
+            <span id="statTotal" class="text-xs font-black text-slate-800">0</span>
+          </div>
+          <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+            <span class="block text-[10px] text-emerald-600 font-semibold">ĐÃ ĐẾN</span>
+            <span id="statIn" class="text-xs font-black text-emerald-700">0</span>
+          </div>
+          <div class="bg-blue-50 p-2 rounded-lg border border-blue-200">
+            <span class="block text-[10px] text-blue-600 font-semibold">ĐÃ VỀ</span>
+            <span id="statOut" class="text-xs font-black text-blue-700">0</span>
+          </div>
+          <div class="bg-amber-50 p-2 rounded-lg border border-amber-200">
+            <span class="block text-[10px] text-amber-600 font-semibold">BỔ SUNG</span>
+            <span id="statExtra" class="text-xs font-black text-amber-700">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bảng nhân sự -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div id="personnelFileBadge" class="bg-indigo-50 px-3 py-2 text-[11px] font-bold text-indigo-700 border-b border-indigo-100 hidden"></div>
+        <div id="personnelTableContainer" class="overflow-x-auto">
+          <p class="text-xs text-center text-slate-400 py-8">Chọn chương trình để tải danh sách nhân sự...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: QUẢN LÝ HIỆN TRƯỜNG (VỊ TRÍ THỨ 3) ================= -->
     <section id="tab-quanly" class="space-y-4 hidden">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Cấu hình ca làm việc hiện trường</h3>
@@ -269,7 +332,6 @@
         </div>
       </div>
 
-      <!-- MÀN HÌNH MÁY QUÉT -->
       <div id="managerScannerSection" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
         <div class="flex justify-between items-center mb-2">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Màn hình máy quét</span>
@@ -282,7 +344,7 @@
       </div>
     </section>
 
-    <!-- ================= TAB 3: KHU VỰC QUẢN TRỊ (ADMIN) ================= -->
+    <!-- ================= TAB 4: KHU VỰC QUẢN TRỊ (ADMIN) ================= -->
     <section id="tab-quantri" class="space-y-4 hidden">
       <div id="adminAuthBox" class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-3 border-b pb-2">
@@ -352,17 +414,25 @@
 
   </main>
 
-  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+  <!-- ================= BOTTOM NAVIGATION BAR (THỨ TỰ 4 TABS MỚI) ================= -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 shadow-lg">
-    <div class="max-w-md mx-auto grid grid-cols-3 h-14">
+    <div class="max-w-md mx-auto grid grid-cols-4 h-14">
+      <!-- 1. Điểm danh -->
       <button onclick="switchTab('diemdanh')" id="nav-diemdanh" class="flex flex-col items-center justify-center text-indigo-600 font-bold text-[10px]">
         <i class="ph ph-qr-code text-xl mb-0.5"></i>
         <span>Điểm danh</span>
       </button>
+      <!-- 2. Danh sách (Thứ 2 từ trái sang) -->
+      <button onclick="switchTab('danhsach')" id="nav-danhsach" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
+        <i class="ph ph-users-three text-xl mb-0.5"></i>
+        <span>Danh sách</span>
+      </button>
+      <!-- 3. Quản lý -->
       <button onclick="switchTab('quanly')" id="nav-quanly" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
         <i class="ph ph-shield-check text-xl mb-0.5"></i>
         <span>Quản lý</span>
       </button>
+      <!-- 4. Quản trị -->
       <button onclick="switchTab('quantri')" id="nav-quantri" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
         <i class="ph ph-gear text-xl mb-0.5"></i>
         <span>Quản trị</span>
@@ -372,12 +442,7 @@
 
   <!-- ================= JAVASCRIPT ================= -->
   <script>
-    /**
-     * DÁN LINK WEB APP CỦA BẠN VÀO ĐÂY:
-     */
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySYCvcT5YlGk_7aPKqUQYeYmko93k7Bby9bvnuKoNNkieQeKwQ8OQEtYllNlgYHsKFZw/exec";
-    
-    // MÃ API IMGBB ĐÃ CẤU HÌNH THEO TÀI KHOẢN CỦA BẠN
     const IMGBB_API_KEY = "9b4a10db15d694a88f3aa0d1ffbc0669";
 
     let currentUser = null;
@@ -388,6 +453,9 @@
     let selfieStream = null;
     let capturedWatermarkedBase64 = null;
     let qrValidityInterval = null;
+    let isAdminUnlocked = false;
+    let currentProgramFileId = null;
+    let pendingAssignData = null;
 
     window.addEventListener("DOMContentLoaded", () => {
       initDeviceId();
@@ -421,6 +489,745 @@
       }
     }
 
+    // --- ĐIỀU HƯỚNG TABS & ƯU TIÊN ĐỒNG BỘ QUẢN LÝ -> ĐIỂM DANH ---
+    function switchTab(tabId) {
+      ["diemdanh", "danhsach", "quanly", "quantri"].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add("hidden");
+        const btn = document.getElementById(`nav-${t}`);
+        btn.classList.remove("text-indigo-600", "font-bold");
+        btn.classList.add("text-slate-400", "font-medium");
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove("hidden");
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      activeBtn.classList.remove("text-slate-400", "font-medium");
+      activeBtn.classList.add("text-indigo-600", "font-bold");
+
+      if (tabId !== "quanly" && html5QrScanner) stopQrScanner();
+
+      if (tabId === "danhsach") {
+        syncAndLoadPersonnel();
+      }
+    }
+
+    function syncAndLoadPersonnel() {
+      const mgrVal = document.getElementById("mgrSchoolSelect").value;
+      const ctvVal = document.getElementById("ctvSchoolSelect").value;
+      // Ưu tiên lựa chọn ở tab Quản lý
+      const targetSchool = mgrVal || ctvVal;
+
+      const pSelect = document.getElementById("personnelSchoolSelect");
+      if (targetSchool) {
+        pSelect.value = targetSchool;
+        loadPersonnelList(targetSchool);
+      } else if (pSelect.value) {
+        loadPersonnelList(pSelect.value);
+      } else {
+        document.getElementById("personnelTableContainer").innerHTML = 
+          `<p class="text-xs text-center text-slate-400 py-8">Vui lòng chọn chương trình để xem danh sách nhân sự.</p>`;
+      }
+    }
+
+    function refreshPersonnelList() {
+      const school = document.getElementById("personnelSchoolSelect").value;
+      if (school) loadPersonnelList(school);
+      else alert("Vui lòng chọn chương trình!");
+    }
+
+    // --- TẢI DANH SÁCH NHÂN SỰ TỪ FILE PHÂN CÔNG ĐÃ TÌM ĐƯỢC ---
+    async function loadPersonnelList(schoolName) {
+      if (!schoolName) return;
+
+      const container = document.getElementById("personnelTableContainer");
+      const badge = document.getElementById("personnelFileBadge");
+      const summaryBar = document.getElementById("personnelSummaryBar");
+
+      container.innerHTML = `<div class="p-8 text-center text-xs text-indigo-600 font-bold flex flex-col items-center">
+        <i class="ph ph-spinner animate-spin text-3xl mb-2"></i>
+        <span>Đang tìm file chương trình & đồng bộ điểm danh...</span>
+      </div>`;
+
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getPersonnelList&schoolName=${encodeURIComponent(schoolName)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          badge.classList.add("hidden");
+          summaryBar.classList.add("hidden");
+          container.innerHTML = `<div class="p-6 text-center text-xs text-red-600 font-bold">${data.message}</div>`;
+          return;
+        }
+
+        currentProgramFileId = data.fileId;
+        badge.innerText = `📁 File tìm thấy: ${data.fileName}`;
+        badge.classList.remove("hidden");
+
+        const list = data.personnel;
+        const teams = data.teams;
+
+        let inCount = 0, outCount = 0, extraCount = 0;
+        list.forEach(p => {
+          if (p.status === "Đã đến") inCount++;
+          if (p.status === "Đã về") outCount++;
+          if (p.isExtra) extraCount++;
+        });
+
+        document.getElementById("statTotal").innerText = list.length;
+        document.getElementById("statIn").innerText = inCount;
+        document.getElementById("statOut").innerText = outCount;
+        document.getElementById("statExtra").innerText = extraCount;
+        summaryBar.classList.remove("hidden");
+
+        if (list.length === 0) {
+          container.innerHTML = `<p class="text-xs text-center text-slate-400 py-8">Chưa có dữ liệu nhân sự trong sheet Phân công.</p>`;
+          return;
+        }
+
+        let tableHtml = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <th class="p-2.5 text-center w-10">STT</th>
+                <th class="p-2.5">Họ và tên</th>
+                <th class="p-2.5">Số điện thoại</th>
+                <th class="p-2.5">Vị trí / Đội</th>
+                <th class="p-2.5 text-center">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+        `;
+
+        list.forEach(person => {
+          const isExtra = person.isExtra;
+          const rowBg = isExtra ? "bg-amber-50/90 font-medium border-l-4 border-amber-400" : "hover:bg-slate-50";
+
+          let statusBadge = "";
+          if (person.status === "Đã về") {
+            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300 whitespace-nowrap">Đã về</span>`;
+          } else if (person.status === "Đã đến") {
+            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">Đã đến</span>`;
+          } else {
+            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">Chưa đến</span>`;
+          }
+
+          let teamCell = "";
+          if (isExtra) {
+            const options = teams.map(t => `<option value="${t}">${t}</option>`).join("");
+            teamCell = `
+              <div class="flex items-center gap-1.5 min-w-[170px]">
+                <select id="teamSelect_${person.maCTV}" class="p-1 text-xs border border-amber-300 rounded bg-white font-medium focus:ring-1 focus:ring-amber-500">
+                  ${options}
+                </select>
+                <button onclick="handleAssignClick('${person.maCTV}', '${escape(person.hoTen)}', '${person.sdt}', '${person.timeIn}', '${person.timeOut}')" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded font-bold shadow-sm whitespace-nowrap">
+                  Lưu vị trí
+                </button>
+              </div>
+            `;
+          } else {
+            teamCell = `<span class="font-semibold text-slate-700">${person.team}</span>`;
+          }
+
+          const phoneCell = person.sdt 
+            ? `<a href="tel:${person.sdt}" class="text-indigo-600 hover:text-indigo-800 font-bold flex items-center space-x-1 whitespace-nowrap">
+                 <i class="ph ph-phone-call text-sm"></i>
+                 <span>${person.sdt}</span>
+               </a>`
+            : `<span class="text-slate-400">---</span>`;
+
+          tableHtml += `
+            <tr class="${rowBg}">
+              <td class="p-2.5 text-center font-bold text-slate-500">${person.stt}</td>
+              <td class="p-2.5 font-bold text-slate-800">
+                ${person.hoTen}
+                ${isExtra ? '<span class="ml-1 text-[9px] bg-amber-200 text-amber-900 px-1 py-0.5 rounded font-black">Bổ sung</span>' : ''}
+              </td>
+              <td class="p-2.5">${phoneCell}</td>
+              <td class="p-2.5">${teamCell}</td>
+              <td class="p-2.5 text-center">${statusBadge}</td>
+            </tr>
+          `;
+        });
+
+        tableHtml += `</tbody></table>`;
+        container.innerHTML = tableHtml;
+
+      } catch (err) {
+        container.innerHTML = `<div class="p-6 text-center text-xs text-red-600 font-bold">Lỗi kết nối: ${err.message}</div>`;
+      }
+    }
+
+    // --- QUẢN TRỊ VIÊN PHÂN CÔNG ---
+    function handleAssignClick(maCTV, hoTenEscaped, sdt, timeIn, timeOut) {
+      const hoTen = unescape(hoTenEscaped);
+      const teamSelect = document.getElementById(`teamSelect_${maCTV}`);
+      const selectedTeam = teamSelect ? teamSelect.value : "";
+
+      pendingAssignData = {
+        fileId: currentProgramFileId,
+        maCTV: maCTV,
+        hoTen: hoTen,
+        sdt: sdt,
+        team: selectedTeam,
+        timeIn: timeIn,
+        timeOut: timeOut
+      };
+
+      if (!isAdminUnlocked) {
+        document.getElementById("adminAssignPasswordInput").value = "";
+        document.getElementById("adminAssignError").classList.add("hidden");
+        document.getElementById("adminAssignAuthModal").classList.remove("hidden");
+      } else {
+        executeAssignExtraStaff();
+      }
+    }
+
+    function closeAdminAssignAuthModal() {
+      document.getElementById("adminAssignAuthModal").classList.add("hidden");
+    }
+
+    async function confirmAdminAssignAuth() {
+      const pass = document.getElementById("adminAssignPasswordInput").value.trim();
+      const errBox = document.getElementById("adminAssignError");
+
+      if (!pass) {
+        errBox.innerText = "Vui lòng nhập mật khẩu!";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
+      errBox.classList.add("hidden");
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "verifyAdmin", password: pass })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          isAdminUnlocked = true;
+          closeAdminAssignAuthModal();
+          executeAssignExtraStaff();
+        } else {
+          errBox.innerText = data.message || "Mật khẩu Admin không đúng!";
+          errBox.classList.remove("hidden");
+        }
+      } catch (err) {
+        errBox.innerText = "Lỗi xác thực: " + err.message;
+        errBox.classList.remove("hidden");
+      }
+    }
+
+    async function executeAssignExtraStaff() {
+      if (!pendingAssignData) return;
+
+      const confirmMsg = `Xác nhận phân công ${pendingAssignData.hoTen} (${pendingAssignData.maCTV}) vào ${pendingAssignData.team}?`;
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "assignExtraStaff",
+            ...pendingAssignData
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert(data.message);
+          refreshPersonnelList();
+        } else {
+          alert("Lỗi: " + data.message);
+        }
+      } catch (e) {
+        alert("Lỗi khi lưu phân công: " + e.message);
+      }
+    }
+
+    // --- TẢI DANH SÁCH CHƯƠNG TRÌNH ---
+    async function loadPrograms() {
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getPrograms`);
+        const data = await res.json();
+        if (data.success) {
+          allPrograms = data.programs;
+          populateSchoolDropdowns();
+          renderAdminPrograms();
+        }
+      } catch (e) {
+        console.error("Lỗi tải trường:", e);
+      }
+    }
+
+    function populateSchoolDropdowns() {
+      const ctvSelect = document.getElementById("ctvSchoolSelect");
+      const mgrSelect = document.getElementById("mgrSchoolSelect");
+      const personnelSelect = document.getElementById("personnelSchoolSelect");
+
+      const ongoing = allPrograms.filter(p => p.status === "Đang diễn ra");
+      const optionsHtml = ongoing.length > 0
+        ? `<option value="">-- Chọn trường đang diễn ra hôm nay --</option>` +
+          ongoing.map(p => `<option value="${p.name}">${p.name}</option>`).join("")
+        : `<option value="">-- Không có trường nào đang diễn ra hôm nay --</option>`;
+
+      ctvSelect.innerHTML = optionsHtml;
+      mgrSelect.innerHTML = optionsHtml;
+      personnelSelect.innerHTML = optionsHtml;
+    }
+
+    // --- CHỤP ẢNH SELFIE (CHỈ DÙNG WEBCAM) ---
+    async function startSelfieCamera() {
+      const video = document.getElementById("selfieVideo");
+      const placeholder = document.getElementById("cameraPlaceholder");
+      const preview = document.getElementById("selfiePreview");
+
+      preview.classList.add("hidden");
+      video.classList.add("hidden");
+      placeholder.classList.remove("hidden");
+
+      try {
+        selfieStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        video.srcObject = selfieStream;
+        video.classList.remove("hidden");
+        placeholder.classList.add("hidden");
+        await video.play();
+        document.getElementById("btnCaptureSelfie").disabled = false;
+      } catch (e) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "KHÔNG THỂ BẬT CAMERA",
+          subtitle: "Vui lòng cho phép quyền truy cập Camera trên trình duyệt của bạn!"
+        });
+      }
+    }
+
+    function captureSelfieWithWatermark() {
+      const school = document.getElementById("ctvSchoolSelect").value;
+      if (!school) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "CHƯA CHỌN TRƯỜNG",
+          subtitle: "Vui lòng chọn trường trước khi chụp ảnh!"
+        });
+        return;
+      }
+
+      const video = document.getElementById("selfieVideo");
+      const canvas = document.getElementById("watermarkCanvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const nowStr = new Date().toLocaleString("vi-VN");
+      const line1 = `Họ tên: ${currentUser.hoTen} - SĐT: ${currentUser.sdt}`;
+      const line2 = `Thời gian: ${nowStr}`;
+      const line3 = `Chương trình: ${school}`;
+
+      const padding = 12;
+      const boxHeight = 84;
+      const boxWidth = Math.min(canvas.width - 24, 460);
+      const startX = padding;
+      const startY = canvas.height - boxHeight - padding;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.roundRect ? ctx.roundRect(startX, startY, boxWidth, boxHeight, 8) : ctx.fillRect(startX, startY, boxWidth, boxHeight);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillText(line1, startX + 10, startY + 22);
+      ctx.font = "12px sans-serif";
+      ctx.fillStyle = "#fde047";
+      ctx.fillText(line2, startX + 10, startY + 44);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(line3, startX + 10, startY + 66);
+
+      capturedWatermarkedBase64 = canvas.toDataURL("image/jpeg", 0.85);
+
+      const preview = document.getElementById("selfiePreview");
+      preview.src = capturedWatermarkedBase64;
+      preview.classList.remove("hidden");
+      document.getElementById("selfieVideo").classList.add("hidden");
+      document.getElementById("cameraPlaceholder").classList.add("hidden");
+      document.getElementById("btnUploadSelfie").classList.remove("hidden");
+      document.getElementById("btnCaptureSelfie").disabled = true;
+
+      if (selfieStream) selfieStream.getTracks().forEach(t => t.stop());
+    }
+
+    async function uploadSelfieImage() {
+      const school = document.getElementById("ctvSchoolSelect").value;
+      const statusText = document.getElementById("uploadStatusText");
+      const btn = document.getElementById("btnUploadSelfie");
+
+      if (!capturedWatermarkedBase64 || !school) return;
+
+      btn.disabled = true;
+      statusText.innerText = "Đang tải ảnh lên kho lưu trữ...";
+      statusText.className = "text-xs text-center font-medium text-amber-600";
+
+      try {
+        const cleanBase64 = capturedWatermarkedBase64.split(",")[1];
+        const formData = new FormData();
+        formData.append("image", cleanBase64);
+
+        const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        const imgbbData = await imgbbRes.json();
+        if (!imgbbData.success) throw new Error(imgbbData.error ? imgbbData.error.message : "Lỗi ImgBB");
+
+        const directImageUrl = imgbbData.data.url;
+
+        statusText.innerText = "Đang lưu link ảnh vào Google Sheets...";
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "saveSelfieUrl",
+            maCTV: currentUser.maCTV,
+            hoTen: currentUser.hoTen,
+            sdt: currentUser.sdt,
+            tenTruong: school,
+            deviceId: localStorage.getItem("aba_device_id"),
+            imageUrl: directImageUrl
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Thông báo này giữ nguyên inline theo yêu cầu
+          statusText.innerText = "✓ Ảnh đã tải lên và lưu link thành công!";
+          statusText.className = "text-xs text-center font-bold text-emerald-600";
+          checkMyAttendance("checkin");
+        } else {
+          statusText.innerText = "Lỗi: " + data.message;
+          statusText.className = "text-xs text-center font-bold text-red-600";
+        }
+      } catch (err) {
+        statusText.innerText = "Lỗi gửi ảnh: " + err.message;
+        statusText.className = "text-xs text-center font-bold text-red-600";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // --- TẠO MÃ QR ĐIỂM DANH ---
+    function generateCtvQR() {
+      const school = document.getElementById("ctvSchoolSelect").value;
+      if (!school) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "CHƯA CHỌN TRƯỜNG",
+          subtitle: "Vui lòng chọn trường trước khi tạo mã QR!"
+        });
+        return;
+      }
+      if (!currentUser) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "CHƯA XÁC THỰC",
+          subtitle: "Vui lòng đăng nhập xác thực tài khoản!"
+        });
+        return;
+      }
+
+      const container = document.getElementById("qrcodeBox");
+      container.innerHTML = "";
+
+      const now = Date.now();
+      const qrData = {
+        maCTV: currentUser.maCTV,
+        hoTen: currentUser.hoTen,
+        sdt: currentUser.sdt,
+        deviceId: localStorage.getItem("aba_device_id"),
+        tenTruong: school,
+        timestamp: now
+      };
+
+      const qrPayloadStr = JSON.stringify(qrData);
+
+      try {
+        if (typeof QRCode !== "undefined") {
+          new QRCode(container, {
+            text: unescape(encodeURIComponent(qrPayloadStr)),
+            width: 190,
+            height: 190,
+            correctLevel: QRCode.CorrectLevel.M
+          });
+
+          setTimeout(() => {
+            container.querySelectorAll("canvas").forEach(c => c.style.display = "none");
+            container.querySelectorAll("img").forEach(img => {
+              img.style.display = "block";
+              img.style.margin = "0 auto";
+            });
+          }, 30);
+        } else {
+          throw new Error("Fallback");
+        }
+      } catch (err) {
+        const img = document.createElement("img");
+        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=" + encodeURIComponent(qrPayloadStr);
+        img.alt = "Mã QR";
+        img.className = "w-48 h-48 mx-auto rounded-xl shadow-sm";
+        container.appendChild(img);
+      }
+
+      const timeFormatted = new Date(now).toLocaleTimeString("vi-VN");
+      document.getElementById("qrNotice").innerText = `QR do ${currentUser.hoTen} tạo lúc ${timeFormatted}`;
+      document.getElementById("qrNotice").className = "text-xs text-slate-800 font-bold mt-3";
+
+      let timeLeft = 60;
+      clearInterval(qrValidityInterval);
+      const timerBox = document.getElementById("qrTimer");
+      timerBox.innerText = `Mã hết hạn sau: ${timeLeft}s`;
+      timerBox.className = "text-xs text-amber-600 font-bold mt-1";
+
+      qrValidityInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(qrValidityInterval);
+          timerBox.innerText = "⚠️ Mã QR đã hết hạn! Vui lòng bấm tạo lại mã.";
+          timerBox.className = "text-xs text-red-600 font-bold mt-1";
+        } else {
+          timerBox.innerText = `Mã hết hạn sau: ${timeLeft}s`;
+          timerBox.className = "text-xs text-amber-600 font-bold mt-1";
+        }
+      }, 1000);
+    }
+
+    // --- KIỂM TRA ĐIỂM DANH: BẬT CỬA SỔ TOÀN MÀN HÌNH THEO YÊU CẦU ---
+    async function checkMyAttendance(type) {
+      const school = document.getElementById("ctvSchoolSelect").value;
+      if (!school) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "CHƯA CHỌN TRƯỜNG",
+          subtitle: "Vui lòng chọn trường để kiểm tra!"
+        });
+        return;
+      }
+
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=checkStatus&maCTV=${currentUser.maCTV}&tenTruong=${encodeURIComponent(school)}`);
+        const data = await res.json();
+
+        if (type === "checkin") {
+          if (data.checkedIn) {
+            showFullScreenAlert({
+              statusType: "checkin_success",
+              title: "CHECK IN THÀNH CÔNG",
+              subtitle: `Thời gian ghi nhận: ${data.checkinTime}`,
+              details: [`Họ tên: ${currentUser.hoTen}`, `Trường: ${school}`]
+            });
+          } else {
+            // Cửa sổ to màu vàng cảnh báo
+            showFullScreenAlert({
+              statusType: "warning",
+              title: "HÃY CHECK IN VỚI QUẢN LÝ",
+              subtitle: "Bạn chưa có thông tin check in trên hệ thống!"
+            });
+          }
+        } else {
+          if (data.checkedOut) {
+            showFullScreenAlert({
+              statusType: "checkout_success",
+              title: "HOÀN THÀNH CHECK OUT",
+              subtitle: `Thời gian ghi nhận: ${data.checkoutTime}`,
+              details: [`Họ tên: ${currentUser.hoTen}`, `Trường: ${school}`]
+            });
+          } else {
+            // Cửa sổ to màu cảnh báo
+            showFullScreenAlert({
+              statusType: "warning",
+              title: "CHECK OUT CHƯA THÀNH CÔNG",
+              subtitle: "Bạn chưa hoàn thành check out với quản lý!"
+            });
+          }
+        }
+      } catch (err) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "LỖI KẾT NỐI",
+          subtitle: err.message
+        });
+      }
+    }
+
+    // --- TAB QUẢN LÝ ---
+    function setScanMode(mode) {
+      selectedScanMode = mode;
+      const badge = document.getElementById("scanModeBadge");
+      const btnIn = document.getElementById("btnModeCheckin");
+      const btnOut = document.getElementById("btnModeCheckout");
+
+      if (mode === "checkin") {
+        badge.innerText = "Chế độ: Check-in";
+        badge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700";
+        btnIn.className = "py-2 rounded-lg text-xs font-bold border-2 border-emerald-500 bg-emerald-50 text-emerald-700";
+        btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-600";
+      } else {
+        badge.innerText = "Chế độ: Check-out";
+        badge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700";
+        btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-rose-500 bg-rose-50 text-rose-700";
+        btnIn.className = "py-2 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-600";
+      }
+    }
+
+    async function startQrScanner() {
+      const school = document.getElementById("mgrSchoolSelect").value;
+      const pin = document.getElementById("mgrSchoolPin").value.trim();
+
+      if (!school) return alert("Vui lòng chọn trường trước khi quét!");
+      if (!pin) return alert("Bắt buộc phải nhập Mã bảo mật của trường để kích hoạt máy quét!");
+
+      document.getElementById("mgrSchoolSelect").disabled = true;
+      document.getElementById("mgrSchoolPin").disabled = true;
+      document.getElementById("btnStartScanner").disabled = true;
+      document.getElementById("btnStopScanner").disabled = false;
+
+      html5QrScanner = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
+
+      try {
+        await html5QrScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
+      } catch (err) {
+        alert("Không thể khởi động camera sau: " + err);
+        stopQrScanner();
+      }
+    }
+
+    async function stopQrScanner() {
+      if (html5QrScanner) {
+        try {
+          await html5QrScanner.stop();
+          html5QrScanner.clear();
+        } catch (e) {}
+        html5QrScanner = null;
+      }
+      document.getElementById("mgrSchoolSelect").disabled = false;
+      document.getElementById("mgrSchoolPin").disabled = false;
+      document.getElementById("btnStartScanner").disabled = false;
+      document.getElementById("btnStopScanner").disabled = true;
+      document.getElementById("reader").innerHTML = `<span class="text-slate-400">Camera đã đóng.</span>`;
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (html5QrScanner) html5QrScanner.pause();
+
+      let qrData;
+      try {
+        qrData = JSON.parse(decodedText);
+      } catch (e) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "MÃ QR KHÔNG HỢP LỆ",
+          subtitle: "Không đúng định dạng hệ thống ABA!"
+        });
+        return;
+      }
+
+      const school = document.getElementById("mgrSchoolSelect").value;
+      const pin = document.getElementById("mgrSchoolPin").value.trim();
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "recordAttendance",
+            scanMode: selectedScanMode,
+            qrData: qrData,
+            currentSchool: school,
+            managerPin: pin,
+            managerName: currentUser ? currentUser.hoTen : "Quản lý"
+          })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          if (selectedScanMode === "checkin") {
+            showFullScreenAlert({
+              statusType: "checkin_success",
+              title: "CHECK IN THÀNH CÔNG",
+              subtitle: `${result.ctv.hoTen} (${result.ctv.maCTV})`,
+              details: [`Thời gian: ${result.time}`, `Trường: ${school}`, `Người điểm danh: ${currentUser ? currentUser.hoTen : 'Quản lý'}`]
+            });
+          } else {
+            showFullScreenAlert({
+              statusType: "checkout_success",
+              title: "CHECK OUT THÀNH CÔNG",
+              subtitle: `${result.ctv.hoTen} (${result.ctv.maCTV})`,
+              details: [`Thời gian: ${result.time}`, `Trường: ${school}`, `Người điểm danh: ${currentUser ? currentUser.hoTen : 'Quản lý'}`]
+            });
+          }
+        } else {
+          showFullScreenAlert({
+            statusType: "warning",
+            title: result.noCheckin ? "NHÂN SỰ CHƯA CHECK IN" : "ĐIỂM DANH CHƯA THÀNH CÔNG",
+            subtitle: result.ctv ? `${result.ctv.hoTen} (${result.ctv.maCTV})` : result.message,
+            details: [result.message, result.noCheckin ? "Nhân sự phải quét Check-in trước khi ra về!" : "Vui lòng tạo lại mã mới."]
+          });
+        }
+      } catch (err) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "LỖI KẾT NỐI",
+          subtitle: err.message
+        });
+      }
+    }
+
+    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH (CHE HẦU HẾT MÀN HÌNH) ---
+    function showFullScreenAlert(config) {
+      const modal = document.getElementById("fullScreenFeedbackModal");
+      const card = document.getElementById("feedbackCard");
+      const iconBox = document.getElementById("feedbackIconBox");
+      const title = document.getElementById("feedbackTitle");
+      const sub = document.getElementById("feedbackSubtitle");
+      const details = document.getElementById("feedbackDetailsBox");
+      const guide = document.getElementById("feedbackTapGuide");
+
+      if (config.statusType === "checkin_success") {
+        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-emerald-600 text-white border-emerald-400";
+        iconBox.innerHTML = `<i class="ph ph-check-circle text-7xl text-white"></i>`;
+        details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
+        guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
+      } else if (config.statusType === "checkout_success") {
+        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-red-600 text-white border-red-400";
+        iconBox.innerHTML = `<i class="ph ph-sign-out text-7xl text-white"></i>`;
+        details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
+        guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
+      } else {
+        // Cảnh báo vàng: như ảnh người dùng gửi
+        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-amber-400 text-slate-900 border-amber-300";
+        iconBox.innerHTML = `<i class="ph ph-warning-octagon text-7xl text-amber-900"></i>`;
+        details.className = "bg-amber-100/90 rounded-2xl p-3 text-xs space-y-1 mb-4 font-semibold text-slate-900";
+        guide.className = "text-xs font-bold text-amber-950 animate-pulse";
+      }
+
+      title.innerText = config.title;
+      sub.innerText = config.subtitle;
+
+      if (config.details && config.details.length > 0) {
+        details.innerHTML = config.details.map(d => `<p>${d}</p>`).join("");
+        details.classList.remove("hidden");
+      } else {
+        details.classList.add("hidden");
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    function dismissModal() {
+      document.getElementById("fullScreenFeedbackModal").classList.add("hidden");
+      if (html5QrScanner) html5QrScanner.resume();
+    }
+
+    // --- ĐĂNG NHẬP & TRA CỨU SĐT ---
     async function handleLookupPhone() {
       const phone = document.getElementById("lookupPhoneInput").value.trim();
       const status = document.getElementById("lookupStatus");
@@ -564,518 +1371,6 @@
       document.getElementById("loginModal").classList.remove("hidden");
     }
 
-    function switchTab(tabId) {
-      ["diemdanh", "quanly", "quantri"].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.add("hidden");
-        const btn = document.getElementById(`nav-${t}`);
-        btn.classList.remove("text-indigo-600", "font-bold");
-        btn.classList.add("text-slate-400", "font-medium");
-      });
-
-      document.getElementById(`tab-${tabId}`).classList.remove("hidden");
-      const activeBtn = document.getElementById(`nav-${tabId}`);
-      activeBtn.classList.remove("text-slate-400", "font-medium");
-      activeBtn.classList.add("text-indigo-600", "font-bold");
-
-      if (tabId !== "quanly" && html5QrScanner) stopQrScanner();
-    }
-
-    async function loadPrograms() {
-      try {
-        const res = await fetch(`${SCRIPT_URL}?action=getPrograms`);
-        const data = await res.json();
-        if (data.success) {
-          allPrograms = data.programs;
-          populateSchoolDropdowns();
-          renderAdminPrograms();
-        }
-      } catch (e) {
-        console.error("Lỗi tải trường:", e);
-      }
-    }
-
-    function populateSchoolDropdowns() {
-      const ctvSelect = document.getElementById("ctvSchoolSelect");
-      const mgrSelect = document.getElementById("mgrSchoolSelect");
-      const ongoing = allPrograms.filter(p => p.status === "Đang diễn ra");
-
-      const optionsHtml = ongoing.length > 0
-        ? `<option value="">-- Chọn trường đang diễn ra hôm nay --</option>` +
-          ongoing.map(p => `<option value="${p.name}">${p.name}</option>`).join("")
-        : `<option value="">-- Không có trường nào đang diễn ra hôm nay --</option>`;
-
-      ctvSelect.innerHTML = optionsHtml;
-      mgrSelect.innerHTML = optionsHtml;
-    }
-
-    // --- SELFIE & NATIVE CAMERA ---
-    async function startSelfieCamera() {
-      const video = document.getElementById("selfieVideo");
-      const placeholder = document.getElementById("cameraPlaceholder");
-      const preview = document.getElementById("selfiePreview");
-
-      preview.classList.add("hidden");
-      video.classList.add("hidden");
-      placeholder.classList.remove("hidden");
-
-      const constraintsList = [
-        { video: { facingMode: "user" }, audio: false },
-        { video: { facingMode: { ideal: "user" } }, audio: false },
-        { video: true, audio: false }
-      ];
-
-      let streamObtained = null;
-      for (const c of constraintsList) {
-        try {
-          streamObtained = await navigator.mediaDevices.getUserMedia(c);
-          if (streamObtained) break;
-        } catch (e) {}
-      }
-
-      if (streamObtained) {
-        selfieStream = streamObtained;
-        video.srcObject = selfieStream;
-        video.classList.remove("hidden");
-        placeholder.classList.add("hidden");
-        try { await video.play(); } catch (e) {}
-        document.getElementById("btnCaptureSelfie").disabled = false;
-      } else {
-        alert("Vui lòng bấm vào nút 'Hoặc Mở Máy Ảnh Điện Thoại Chụp' ở ngay bên dưới!");
-      }
-    }
-
-    function captureSelfieWithWatermark() {
-      const school = document.getElementById("ctvSchoolSelect").value;
-      if (!school) return alert("Vui lòng chọn trường trước khi chụp ảnh!");
-
-      const video = document.getElementById("selfieVideo");
-      const canvas = document.getElementById("watermarkCanvas");
-      const ctx = canvas.getContext("2d");
-
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      applyWatermarkToCanvas(canvas, school);
-      if (selfieStream) selfieStream.getTracks().forEach(t => t.stop());
-    }
-
-    function handleNativeCameraCapture(event) {
-      const school = document.getElementById("ctvSchoolSelect").value;
-      if (!school) {
-        alert("Vui lòng chọn trường trước khi chụp ảnh!");
-        event.target.value = "";
-        return;
-      }
-
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.getElementById("watermarkCanvas");
-          const ctx = canvas.getContext("2d");
-          canvas.width = img.width > 1280 ? 1280 : img.width;
-          canvas.height = (img.height / img.width) * canvas.width;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          applyWatermarkToCanvas(canvas, school);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function applyWatermarkToCanvas(canvas, school) {
-      const ctx = canvas.getContext("2d");
-      const nowStr = new Date().toLocaleString("vi-VN");
-      const line1 = `Họ tên: ${currentUser.hoTen} - SĐT: ${currentUser.sdt}`;
-      const line2 = `Thời gian: ${nowStr}`;
-      const line3 = `Chương trình: ${school}`;
-
-      const padding = 12;
-      const boxHeight = 84;
-      const boxWidth = Math.min(canvas.width - 24, 460);
-      const startX = padding;
-      const startY = canvas.height - boxHeight - padding;
-
-      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.roundRect ? ctx.roundRect(startX, startY, boxWidth, boxHeight, 8) : ctx.fillRect(startX, startY, boxWidth, boxHeight);
-      ctx.fill();
-
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 13px sans-serif";
-      ctx.fillText(line1, startX + 10, startY + 22);
-      ctx.font = "12px sans-serif";
-      ctx.fillStyle = "#fde047";
-      ctx.fillText(line2, startX + 10, startY + 44);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(line3, startX + 10, startY + 66);
-
-      capturedWatermarkedBase64 = canvas.toDataURL("image/jpeg", 0.85);
-
-      const preview = document.getElementById("selfiePreview");
-      preview.src = capturedWatermarkedBase64;
-      preview.classList.remove("hidden");
-      document.getElementById("selfieVideo").classList.add("hidden");
-      document.getElementById("cameraPlaceholder").classList.add("hidden");
-      document.getElementById("btnUploadSelfie").classList.remove("hidden");
-      document.getElementById("btnCaptureSelfie").disabled = true;
-    }
-
-    // --- TẢI ẢNH QUA IMGBB API ---
-    async function uploadSelfieImage() {
-      const school = document.getElementById("ctvSchoolSelect").value;
-      const statusText = document.getElementById("uploadStatusText");
-      const btn = document.getElementById("btnUploadSelfie");
-
-      if (!capturedWatermarkedBase64 || !school) return;
-
-      btn.disabled = true;
-      statusText.innerText = "Đang tải ảnh lên kho lưu trữ ImgBB...";
-      statusText.className = "text-xs text-center font-medium text-amber-600";
-
-      try {
-        const cleanBase64 = capturedWatermarkedBase64.split(",")[1];
-        const formData = new FormData();
-        formData.append("image", cleanBase64);
-
-        // Đẩy ảnh trực tiếp lên ImgBB
-        const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-          method: "POST",
-          body: formData
-        });
-        const imgbbData = await imgbbRes.json();
-
-        if (!imgbbData.success) {
-          throw new Error(imgbbData.error ? imgbbData.error.message : "Không thể tải ảnh lên ImgBB");
-        }
-
-        const directImageUrl = imgbbData.data.url;
-
-        // Lưu link vào Google Sheet
-        statusText.innerText = "Đang lưu link ảnh vào bảng tính...";
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "saveSelfieUrl",
-            maCTV: currentUser.maCTV,
-            hoTen: currentUser.hoTen,
-            sdt: currentUser.sdt,
-            tenTruong: school,
-            deviceId: localStorage.getItem("aba_device_id"),
-            imageUrl: directImageUrl
-          })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          statusText.innerText = "✓ Ảnh đã tải lên và lưu link thành công!";
-          statusText.className = "text-xs text-center font-bold text-emerald-600";
-          checkMyAttendance("checkin");
-        } else {
-          statusText.innerText = "Lỗi: " + data.message;
-          statusText.className = "text-xs text-center font-bold text-red-600";
-        }
-      } catch (err) {
-        statusText.innerText = "Lỗi gửi ảnh: " + err.message;
-        statusText.className = "text-xs text-center font-bold text-red-600";
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    // --- 1 NÚT TẠO MÃ QR DUY NHẤT & FIX TRIỆT ĐỂ LỖI LỆCH KHUNG ---
-    function generateCtvQR() {
-      const school = document.getElementById("ctvSchoolSelect").value;
-      if (!school) return alert("Vui lòng chọn trường trước khi tạo mã QR!");
-      if (!currentUser) return alert("Vui lòng xác thực tài khoản trước!");
-
-      const container = document.getElementById("qrcodeBox");
-      container.innerHTML = ""; // Xóa placeholder cũ
-
-      const now = Date.now();
-      const qrData = {
-        maCTV: currentUser.maCTV,
-        hoTen: currentUser.hoTen,
-        sdt: currentUser.sdt,
-        deviceId: localStorage.getItem("aba_device_id"),
-        tenTruong: school,
-        timestamp: now
-      };
-
-      const qrPayloadStr = JSON.stringify(qrData);
-
-      try {
-        if (typeof QRCode !== "undefined") {
-          new QRCode(container, {
-            text: unescape(encodeURIComponent(qrPayloadStr)),
-            width: 190,
-            height: 190,
-            correctLevel: QRCode.CorrectLevel.M
-          });
-
-          // Ép ẩn canvas ngầm và định dạng ảnh nằm chính giữa
-          setTimeout(() => {
-            const canvases = container.querySelectorAll("canvas");
-            canvases.forEach(c => c.style.display = "none");
-            const imgs = container.querySelectorAll("img");
-            imgs.forEach(img => {
-              img.style.display = "block";
-              img.style.margin = "0 auto";
-            });
-          }, 30);
-        } else {
-          throw new Error("Fallback");
-        }
-      } catch (err) {
-        const img = document.createElement("img");
-        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=" + encodeURIComponent(qrPayloadStr);
-        img.alt = "Mã QR";
-        img.className = "w-48 h-48 mx-auto rounded-xl shadow-sm";
-        container.appendChild(img);
-      }
-
-      const timeFormatted = new Date(now).toLocaleTimeString("vi-VN");
-      document.getElementById("qrNotice").innerText = `QR do ${currentUser.hoTen} tạo lúc ${timeFormatted}`;
-      document.getElementById("qrNotice").className = "text-xs text-slate-800 font-bold mt-3";
-
-      let timeLeft = 60;
-      clearInterval(qrValidityInterval);
-      const timerBox = document.getElementById("qrTimer");
-      timerBox.innerText = `Mã hết hạn sau: ${timeLeft}s`;
-      timerBox.className = "text-xs text-amber-600 font-bold mt-1";
-
-      qrValidityInterval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(qrValidityInterval);
-          timerBox.innerText = "⚠️ Mã QR đã hết hạn! Vui lòng bấm tạo lại mã.";
-          timerBox.className = "text-xs text-red-600 font-bold mt-1";
-        } else {
-          timerBox.innerText = `Mã hết hạn sau: ${timeLeft}s`;
-          timerBox.className = "text-xs text-amber-600 font-bold mt-1";
-        }
-      }, 1000);
-    }
-
-    async function checkMyAttendance(type) {
-      const school = document.getElementById("ctvSchoolSelect").value;
-      const resBox = document.getElementById("ctvCheckResult");
-      if (!school) return alert("Vui lòng chọn trường để kiểm tra!");
-
-      resBox.className = "mt-2 text-xs font-semibold p-2.5 rounded-lg bg-slate-200 text-slate-700 block";
-      resBox.innerText = "Đang kiểm tra dữ liệu...";
-
-      try {
-        const res = await fetch(`${SCRIPT_URL}?action=checkStatus&maCTV=${currentUser.maCTV}&tenTruong=${encodeURIComponent(school)}`);
-        const data = await res.json();
-
-        if (type === "checkin") {
-          if (data.checkedIn) {
-            resBox.className = "mt-2 text-xs font-bold p-2.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 block";
-            resBox.innerText = `✓ Check-in thành công lúc: ${data.checkinTime}`;
-          } else {
-            resBox.className = "mt-2 text-xs font-bold p-2.5 rounded-lg bg-amber-100 text-amber-800 border border-amber-300 block";
-            resBox.innerText = "Hãy check in với quản lý";
-          }
-        } else {
-          if (data.checkedOut) {
-            resBox.className = "mt-2 text-xs font-bold p-2.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 block";
-            resBox.innerText = `✓ Hoàn thành check out lúc: ${data.checkoutTime}`;
-          } else {
-            resBox.className = "mt-2 text-xs font-bold p-2.5 rounded-lg bg-red-100 text-red-800 border border-red-300 block";
-            resBox.innerText = "Check out chưa thành công";
-          }
-        }
-      } catch (err) {
-        resBox.innerText = "Lỗi khi kiểm tra: " + err.message;
-      }
-    }
-
-    // --- TAB QUẢN LÝ ---
-    function setScanMode(mode) {
-      selectedScanMode = mode;
-      const badge = document.getElementById("scanModeBadge");
-      const btnIn = document.getElementById("btnModeCheckin");
-      const btnOut = document.getElementById("btnModeCheckout");
-
-      if (mode === "checkin") {
-        badge.innerText = "Chế độ: Check-in";
-        badge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700";
-        btnIn.className = "py-2 rounded-lg text-xs font-bold border-2 border-emerald-500 bg-emerald-50 text-emerald-700";
-        btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-600";
-      } else {
-        badge.innerText = "Chế độ: Check-out";
-        badge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700";
-        btnOut.className = "py-2 rounded-lg text-xs font-bold border-2 border-rose-500 bg-rose-50 text-rose-700";
-        btnIn.className = "py-2 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-600";
-      }
-    }
-
-    async function startQrScanner() {
-      const school = document.getElementById("mgrSchoolSelect").value;
-      const pin = document.getElementById("mgrSchoolPin").value.trim();
-
-      if (!school) return alert("Vui lòng chọn trường trước khi quét!");
-      if (!pin) return alert("Bắt buộc phải nhập Mã bảo mật của trường để kích hoạt máy quét!");
-
-      document.getElementById("mgrSchoolSelect").disabled = true;
-      document.getElementById("mgrSchoolPin").disabled = true;
-      document.getElementById("btnStartScanner").disabled = true;
-      document.getElementById("btnStopScanner").disabled = false;
-
-      html5QrScanner = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
-
-      try {
-        await html5QrScanner.start(
-          { facingMode: "environment" },
-          config,
-          onScanSuccess,
-          () => {}
-        );
-      } catch (err) {
-        alert("Không thể khởi động camera sau: " + err);
-        stopQrScanner();
-      }
-    }
-
-    async function stopQrScanner() {
-      if (html5QrScanner) {
-        try {
-          await html5QrScanner.stop();
-          html5QrScanner.clear();
-        } catch (e) {}
-        html5QrScanner = null;
-      }
-
-      document.getElementById("mgrSchoolSelect").disabled = false;
-      document.getElementById("mgrSchoolPin").disabled = false;
-      document.getElementById("btnStartScanner").disabled = false;
-      document.getElementById("btnStopScanner").disabled = true;
-      document.getElementById("reader").innerHTML = `<span class="text-slate-400">Camera đã đóng.</span>`;
-    }
-
-    async function onScanSuccess(decodedText) {
-      if (html5QrScanner) html5QrScanner.pause();
-
-      let qrData;
-      try {
-        qrData = JSON.parse(decodedText);
-      } catch (e) {
-        showFullScreenFeedback({
-          statusType: "warning",
-          title: "MÃ QR KHÔNG HỢP LỆ",
-          subtitle: "Không đúng định dạng hệ thống ABA!",
-          details: ["Vui lòng kiểm tra lại mã QR của nhân sự."]
-        });
-        return;
-      }
-
-      const school = document.getElementById("mgrSchoolSelect").value;
-      const pin = document.getElementById("mgrSchoolPin").value.trim();
-
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "recordAttendance",
-            scanMode: selectedScanMode,
-            qrData: qrData,
-            currentSchool: school,
-            managerPin: pin,
-            managerName: currentUser ? currentUser.hoTen : "Quản lý"
-          })
-        });
-        const result = await res.json();
-
-        if (result.success) {
-          if (selectedScanMode === "checkin") {
-            // CHECK-IN THÀNH CÔNG: XANH LÁ
-            showFullScreenFeedback({
-              statusType: "checkin_success",
-              title: "CHECK IN THÀNH CÔNG",
-              subtitle: `${result.ctv.hoTen} (${result.ctv.maCTV})`,
-              details: [
-                `Thời gian: ${result.time}`,
-                `Trường: ${school}`,
-                `Người điểm danh: ${currentUser ? currentUser.hoTen : 'Quản lý'}`
-              ]
-            });
-          } else {
-            // CHECK-OUT THÀNH CÔNG: ĐỎ
-            showFullScreenFeedback({
-              statusType: "checkout_success",
-              title: "CHECK OUT THÀNH CÔNG",
-              subtitle: `${result.ctv.hoTen} (${result.ctv.maCTV})`,
-              details: [
-                `Thời gian: ${result.time}`,
-                `Trường: ${school}`,
-                `Người điểm danh: ${currentUser ? currentUser.hoTen : 'Quản lý'}`
-              ]
-            });
-          }
-        } else {
-          // KHÔNG THÀNH CÔNG: VÀNG CẢNH BÁO
-          showFullScreenFeedback({
-            statusType: "warning",
-            title: result.noCheckin ? "NHÂN SỰ CHƯA CHECK IN" : "ĐIỂM DANH CHƯA THÀNH CÔNG",
-            subtitle: result.ctv ? `${result.ctv.hoTen} (${result.ctv.maCTV})` : result.message,
-            details: [
-              result.message,
-              result.noCheckin ? "Nhân sự phải quét Check-in trước khi ra về!" : "Vui lòng bấm tạo lại mã mới."
-            ]
-          });
-        }
-      } catch (err) {
-        showFullScreenFeedback({
-          statusType: "warning",
-          title: "LỖI KẾT NỐI",
-          subtitle: err.message,
-          details: ["Vui lòng kiểm tra lại kết nối mạng."]
-        });
-      }
-    }
-
-    function showFullScreenFeedback(config) {
-      const modal = document.getElementById("fullScreenFeedbackModal");
-      const card = document.getElementById("feedbackCard");
-      const iconBox = document.getElementById("feedbackIconBox");
-      const title = document.getElementById("feedbackTitle");
-      const sub = document.getElementById("feedbackSubtitle");
-      const details = document.getElementById("feedbackDetailsBox");
-      const guide = document.getElementById("feedbackTapGuide");
-
-      if (config.statusType === "checkin_success") {
-        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-emerald-600 text-white border-emerald-400";
-        iconBox.innerHTML = `<i class="ph ph-check-circle text-7xl text-white"></i>`;
-        details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
-        guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
-      } else if (config.statusType === "checkout_success") {
-        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-red-600 text-white border-red-400";
-        iconBox.innerHTML = `<i class="ph ph-sign-out text-7xl text-white"></i>`;
-        details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
-        guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
-      } else {
-        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-amber-400 text-slate-900 border-amber-300";
-        iconBox.innerHTML = `<i class="ph ph-warning-octagon text-7xl text-amber-900"></i>`;
-        details.className = "bg-amber-100/90 rounded-2xl p-3 text-xs space-y-1 mb-4 font-semibold text-slate-900";
-        guide.className = "text-xs font-bold text-amber-950 animate-pulse";
-      }
-
-      title.innerText = config.title;
-      sub.innerText = config.subtitle;
-      details.innerHTML = config.details.map(d => `<p>${d}</p>`).join("");
-      modal.classList.remove("hidden");
-    }
-
-    function dismissScanModal() {
-      document.getElementById("fullScreenFeedbackModal").classList.add("hidden");
-      if (html5QrScanner) html5QrScanner.resume();
-    }
-
     // --- TAB QUẢN TRỊ ---
     async function verifyAdminPassword() {
       const pass = document.getElementById("adminPasswordInput").value.trim();
@@ -1088,6 +1383,7 @@
         });
         const data = await res.json();
         if (data.success) {
+          isAdminUnlocked = true;
           document.getElementById("adminAuthBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
         } else {
