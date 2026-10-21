@@ -21,7 +21,12 @@
       width: 100% !important;
     }
     .custom-scroll::-webkit-scrollbar {
-      display: none;
+      height: 4px;
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
     }
     #qrcodeBox canvas {
       display: none !important;
@@ -34,7 +39,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 pb-20 select-none">
+<body class="bg-slate-100 text-slate-800 pb-28 select-none">
 
   <!-- ================= HEADER APP ================= -->
   <header class="bg-indigo-700 text-white px-4 py-3 sticky top-0 z-40 shadow flex justify-between items-center">
@@ -62,6 +67,81 @@
     </div>
   </div>
 
+  <!-- ================= MODAL CHỌN VAI TRÒ KHI VÀO TAB DANH SÁCH ================= -->
+  <div id="roleSelectModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center space-y-4">
+      <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+        <i class="ph ph-identification-card"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-black text-slate-800">Bạn là ai?</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Chọn vai trò truy cập danh sách nhân sự</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <button onclick="selectRole('ctv')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-2 rounded-xl text-xs shadow flex flex-col items-center justify-center space-y-1">
+          <i class="ph ph-user text-xl"></i>
+          <span>Cộng tác viên</span>
+        </button>
+        <button onclick="selectRole('manager')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-2 rounded-xl text-xs shadow flex flex-col items-center justify-center space-y-1">
+          <i class="ph ph-shield-check text-xl"></i>
+          <span>Quản lý</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL NHẬP MÃ BẢO MẬT CHƯƠNG TRÌNH CHO QUẢN LÝ ================= -->
+  <div id="managerPinAuthModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
+      <div class="flex items-center space-x-2 text-blue-700 font-bold border-b pb-2">
+        <i class="ph ph-lock-key text-xl"></i>
+        <span>Xác Thực Quản Lý</span>
+      </div>
+      <p class="text-xs text-slate-600">
+        Vui lòng nhập <b>Mã bảo mật của chương trình (PIN)</b> để kích hoạt quyền quản lý:
+      </p>
+      <input type="password" id="mgrAuthPinInput" placeholder="Nhập mã PIN trường..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500">
+      <div id="mgrAuthPinError" class="text-xs text-red-600 font-semibold hidden"></div>
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button onclick="confirmManagerPinAuth()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
+          Xác Nhận
+        </button>
+        <button onclick="cancelManagerPinAuth()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
+          Hủy Bỏ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL XÁC NHẬN PHÂN CÔNG NHÂN SỰ BỔ SUNG (MẬT KHẨU ADMIN Ô D1)[cite: 32] ================= -->
+  <div id="extraConfirmModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
+      <div class="flex items-center space-x-2 text-amber-600 font-bold border-b pb-2">
+        <i class="ph ph-user-plus text-xl"></i>
+        <span>Xác Nhận Phân Công Bổ Sung</span>
+      </div>
+      
+      <p id="extraConfirmText" class="text-xs text-slate-700 leading-relaxed font-medium">
+        Xác nhận phân công nhân sự bổ sung...
+      </p>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Mật khẩu Quản trị (ô D1) để xác nhận:</label>
+        <input type="password" id="extraAdminPassInput" placeholder="Nhập mật khẩu Admin..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500">
+        <div id="extraConfirmError" class="text-xs text-red-600 font-semibold mt-1 hidden"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button onclick="confirmExtraStaff()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
+          Đồng ý
+        </button>
+        <button onclick="cancelExtraStaff()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
+          Bỏ qua
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MODAL ĐỔI TÀI KHOẢN (MẬT KHẨU Ô F1) ================= -->
   <div id="switchModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
@@ -83,27 +163,6 @@
     </div>
   </div>
 
-  <!-- ================= MODAL XÁC THỰC ADMIN ĐỂ PHÂN CÔNG ================= -->
-  <div id="adminAssignAuthModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
-      <div class="flex items-center space-x-2 text-indigo-700 font-bold border-b pb-2">
-        <i class="ph ph-shield-check text-xl"></i>
-        <span>Quyền Quản Trị Phân Công</span>
-      </div>
-      <p class="text-xs text-slate-600">Chỉ người Quản trị mới có quyền phân công nhân sự bổ sung. Nhập mật khẩu Quản trị (ô <b>D1</b>):</p>
-      <input type="password" id="adminAssignPasswordInput" placeholder="Mật khẩu Admin..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
-      <div id="adminAssignError" class="text-xs text-red-600 font-semibold hidden"></div>
-      <div class="grid grid-cols-2 gap-2 pt-2">
-        <button onclick="confirmAdminAssignAuth()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
-          Xác Nhận
-        </button>
-        <button onclick="closeAdminAssignAuthModal()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
-          Hủy Bỏ
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- ================= MODAL ĐĂNG NHẬP (2-FA & TRA CỨU SĐT) ================= -->
   <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl max-h-[95vh] overflow-y-auto custom-scroll">
@@ -115,7 +174,6 @@
         <p class="text-xs text-slate-500">Đối chiếu dữ liệu thời gian thực với Data gốc</p>
       </div>
 
-      <!-- TRA CỨU SĐT -->
       <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-200 mb-3 space-y-2">
         <label class="block text-xs font-bold text-indigo-900 flex items-center space-x-1">
           <i class="ph ph-magnifying-glass-bold"></i>
@@ -130,7 +188,6 @@
         <div id="lookupStatus" class="text-[11px] font-medium hidden"></div>
       </div>
 
-      <!-- FORM ĐĂNG NHẬP -->
       <div class="space-y-3">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Mã nhân sự</label>
@@ -149,27 +206,34 @@
   </div>
 
   <!-- ================= NỘI DUNG 4 TABS ================= -->
-  <main class="max-w-md mx-auto p-4">
+  <main class="max-w-md mx-auto p-2 sm:p-3">
 
     <!-- ================= TAB 1: ĐIỂM DANH (CTV) ================= -->
     <section id="tab-diemdanh" class="space-y-4">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-3 border-b pb-2">
-          <i class="ph ph-chalkboard-teacher text-xl"></i>
-          <span>1. Chọn Chương Trình Đi Làm</span>
+        <div class="flex items-center justify-between border-b pb-2 mb-3">
+          <div class="flex items-center space-x-2 text-indigo-700 font-bold">
+            <i class="ph ph-chalkboard-teacher text-xl"></i>
+            <span>1. Chọn Chương Trình Đi Làm</span>
+          </div>
+          <button onclick="loadPrograms()" class="text-[11px] text-indigo-600 font-bold hover:underline flex items-center space-x-0.5">
+            <i class="ph ph-arrows-clockwise text-xs"></i>
+            <span>Tải lại</span>
+          </button>
         </div>
-        <select id="ctvSchoolSelect" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+        <select id="ctvSchoolSelect" onchange="onSchoolChange('ctv', this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
           <option value="">-- Đang tải danh sách trường --</option>
         </select>
-        <p class="text-[11px] text-slate-500 mt-1.5">* Hệ thống tự động lọc các chương trình đang diễn ra hôm nay</p>
+        <p class="text-[11px] text-slate-500 mt-1.5">* Chỉ hiển thị các chương trình đang diễn ra hôm nay[cite: 29]</p>
       </div>
 
-      <!-- 2. Chụp ảnh Selfie Watermark (CHỈ ĐỂ BẬT CAM VÀ CHỤP ĐÓNG DẤU) -->
+      <!-- 2. Chụp ảnh selfie check in[cite: 30] -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-3 border-b pb-2">
+        <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-1 border-b pb-2">
           <i class="ph ph-camera text-xl"></i>
-          <span>2. Chụp Ảnh Selfie (Watermark)</span>
+          <span>2. Chụp ảnh selfie check in</span>
         </div>
+        <p class="text-[11px] text-slate-500 mb-3 italic">Hãy chụp ảnh rõ mặt ở vị trí có tên trường.</p>
         
         <div class="space-y-3">
           <div class="grid grid-cols-2 gap-2">
@@ -193,7 +257,6 @@
             <canvas id="watermarkCanvas" class="hidden"></canvas>
           </div>
 
-          <!-- Thông báo này giữ nguyên inline theo yêu cầu -->
           <button onclick="uploadSelfieImage()" id="btnUploadSelfie" class="w-full hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-lg font-bold flex items-center justify-center space-x-1 shadow">
             <i class="ph ph-cloud-arrow-up text-base"></i>
             <span>Gửi Ảnh Lên Hệ Thống</span>
@@ -239,66 +302,89 @@
       </div>
     </section>
 
-    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ & PHÂN CÔNG (VỊ TRÍ THỨ 2 TỪ TRÁI SANG) ================= -->
-    <section id="tab-danhsach" class="space-y-4 hidden">
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
-        <div class="flex justify-between items-center border-b pb-2">
-          <div class="flex items-center space-x-2 text-indigo-700 font-bold">
-            <i class="ph ph-users-three text-xl"></i>
-            <span>Danh Sách Nhân Sự Phân Công</span>
+    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ (VỊ TRÍ THỨ 2) ================= -->
+    <section id="tab-danhsach" class="space-y-2.5 hidden">
+      <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 space-y-2">
+        <div class="flex justify-between items-center border-b pb-1.5">
+          <div class="flex items-center space-x-1.5 text-indigo-700 font-bold text-xs">
+            <i class="ph ph-users-three text-lg"></i>
+            <span>Danh Sách Phân Công</span>
           </div>
-          <button onclick="refreshPersonnelList()" class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg font-bold border border-indigo-200 flex items-center space-x-1 shadow-sm">
-            <i class="ph ph-arrows-clockwise text-sm"></i>
-            <span>Làm mới</span>
-          </button>
+          <div class="flex items-center space-x-1.5">
+            <span id="currentRoleBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600">Chưa chọn</span>
+            <button onclick="refreshPersonnelList()" class="text-[11px] bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md font-bold border border-indigo-200 flex items-center space-x-1">
+              <i class="ph ph-arrows-clockwise text-xs"></i>
+              <span>Làm mới</span>
+            </button>
+          </div>
         </div>
 
+        <!-- Chọn trường -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Chương trình đang xem</label>
-          <select id="personnelSchoolSelect" onchange="loadPersonnelList(this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
+          <select id="personnelSchoolSelect" onchange="onPersonnelSchoolChange(this.value)" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 font-medium">
             <option value="">-- Đang đồng bộ chương trình --</option>
           </select>
-          <p class="text-[11px] text-slate-500 mt-1">* Ưu tiên đồng bộ theo Tab Quản lý (hoặc Tab Điểm danh)</p>
         </div>
 
-        <!-- Thống kê quân số -->
-        <div id="personnelSummaryBar" class="grid grid-cols-4 gap-1.5 text-center pt-1 hidden">
-          <div class="bg-slate-100 p-2 rounded-lg border border-slate-200">
-            <span class="block text-[10px] text-slate-500 font-semibold">TỔNG</span>
+        <!-- THANH CÔNG CỤ SẮP XẾP (SORT) -->
+        <div class="flex items-center justify-between gap-1.5 pt-0.5">
+          <div class="flex items-center space-x-1 text-slate-600">
+            <i class="ph ph-sort-ascending text-sm text-indigo-600"></i>
+            <span class="text-[10px] font-bold whitespace-nowrap">Sắp xếp:</span>
+          </div>
+          <select id="sortPersonnelSelect" onchange="onSortChange(this.value)" class="flex-1 p-1 text-[10px] border border-slate-300 rounded-lg bg-white font-semibold focus:ring-1 focus:ring-indigo-500">
+            <option value="default">Mặc định (STT ban đầu)</option>
+            <option value="team">Theo Vị trí / Đội</option>
+            <option value="ca1_asc">Ca 1: Lớp nhỏ → lớn (1A, 2B...)</option>
+            <option value="ca1_desc">Ca 1: Lớp lớn → nhỏ (5B, 4A...)</option>
+            <option value="ca2_asc">Ca 2: Lớp nhỏ → lớn (1A, 2B...)</option>
+            <option value="ca2_desc">Ca 2: Lớp lớn → nhỏ (5B, 4A...)</option>
+          </select>
+        </div>
+
+        <!-- 5 Ô THỐNG KÊ QUÂN SỐ & GỬI ẢNH[cite: 33] -->
+        <div id="personnelSummaryBar" class="grid grid-cols-5 gap-1 text-center pt-0.5 hidden">
+          <div class="bg-slate-100 p-1 rounded-md border border-slate-200">
+            <span class="block text-[8px] text-slate-500 font-bold">TỔNG</span>
             <span id="statTotal" class="text-xs font-black text-slate-800">0</span>
           </div>
-          <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
-            <span class="block text-[10px] text-emerald-600 font-semibold">ĐÃ ĐẾN</span>
+          <div class="bg-emerald-50 p-1 rounded-md border border-emerald-200">
+            <span class="block text-[8px] text-emerald-600 font-bold">ĐÃ ĐẾN</span>
             <span id="statIn" class="text-xs font-black text-emerald-700">0</span>
           </div>
-          <div class="bg-blue-50 p-2 rounded-lg border border-blue-200">
-            <span class="block text-[10px] text-blue-600 font-semibold">ĐÃ VỀ</span>
+          <div class="bg-blue-50 p-1 rounded-md border border-blue-200">
+            <span class="block text-[8px] text-blue-600 font-bold">ĐÃ VỀ</span>
             <span id="statOut" class="text-xs font-black text-blue-700">0</span>
           </div>
-          <div class="bg-amber-50 p-2 rounded-lg border border-amber-200">
-            <span class="block text-[10px] text-amber-600 font-semibold">BỔ SUNG</span>
+          <div class="bg-purple-50 p-1 rounded-md border border-purple-200">
+            <span class="block text-[8px] text-purple-600 font-bold">GỬI ẢNH</span>
+            <span id="statPhoto" class="text-xs font-black text-purple-700">0</span>
+          </div>
+          <div class="bg-amber-50 p-1 rounded-md border border-amber-200">
+            <span class="block text-[8px] text-amber-600 font-bold">BỔ SUNG</span>
             <span id="statExtra" class="text-xs font-black text-amber-700">0</span>
           </div>
         </div>
       </div>
 
-      <!-- Bảng nhân sự -->
+      <!-- BẢNG NHÂN SỰ TỐI ƯU GỌN KHÍT, KHÔNG KÉO NGANG, HIỆN HẾT HỌ TÊN, CÓ KIỂM TRA TRÙNG LẶP -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div id="personnelFileBadge" class="bg-indigo-50 px-3 py-2 text-[11px] font-bold text-indigo-700 border-b border-indigo-100 hidden"></div>
-        <div id="personnelTableContainer" class="overflow-x-auto">
+        <div id="personnelFileBadge" class="bg-indigo-50 px-2.5 py-1.5 text-[10px] font-bold text-indigo-700 border-b border-indigo-100 hidden truncate"></div>
+        
+        <div id="personnelTableContainer" class="overflow-x-auto custom-scroll max-h-[60vh] overflow-y-auto">
           <p class="text-xs text-center text-slate-400 py-8">Chọn chương trình để tải danh sách nhân sự...</p>
         </div>
       </div>
     </section>
 
-    <!-- ================= TAB 3: QUẢN LÝ HIỆN TRƯỜNG (VỊ TRÍ THỨ 3) ================= -->
+    <!-- ================= TAB 3: QUẢN LÝ HIỆN TRƯỜNG ================= -->
     <section id="tab-quanly" class="space-y-4 hidden">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Cấu hình ca làm việc hiện trường</h3>
         
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Chương trình hiện trường</label>
-          <select id="mgrSchoolSelect" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          <select id="mgrSchoolSelect" onchange="onSchoolChange('mgr', this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
             <option value="">-- Đang tải trường --</option>
           </select>
         </div>
@@ -414,25 +500,33 @@
 
   </main>
 
-  <!-- ================= BOTTOM NAVIGATION BAR (THỨ TỰ 4 TABS MỚI) ================= -->
+  <!-- ================= THANH NÚT NỔI "LƯU THAY ĐỔI" TRƯỢT DỌC THEO BẢNG ================= -->
+  <div id="floatingSaveBar" class="fixed bottom-14 left-0 right-0 z-30 bg-amber-500 text-white px-4 py-2.5 shadow-xl flex justify-between items-center max-w-md mx-auto hidden transition-all">
+    <div class="flex items-center space-x-1.5">
+      <i class="ph ph-warning-circle text-lg animate-bounce"></i>
+      <span id="floatingSaveText" class="text-xs font-black">Có thay đổi phân công</span>
+    </div>
+    <button onclick="saveAllAssignments()" class="bg-white text-amber-900 text-xs px-3.5 py-1.5 rounded-lg font-black shadow hover:bg-amber-50 flex items-center space-x-1">
+      <i class="ph ph-floppy-disk text-sm"></i>
+      <span>Lưu thay đổi</span>
+    </button>
+  </div>
+
+  <!-- ================= BOTTOM NAVIGATION BAR (4 TABS) ================= -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 shadow-lg">
     <div class="max-w-md mx-auto grid grid-cols-4 h-14">
-      <!-- 1. Điểm danh -->
       <button onclick="switchTab('diemdanh')" id="nav-diemdanh" class="flex flex-col items-center justify-center text-indigo-600 font-bold text-[10px]">
         <i class="ph ph-qr-code text-xl mb-0.5"></i>
         <span>Điểm danh</span>
       </button>
-      <!-- 2. Danh sách (Thứ 2 từ trái sang) -->
       <button onclick="switchTab('danhsach')" id="nav-danhsach" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
         <i class="ph ph-users-three text-xl mb-0.5"></i>
         <span>Danh sách</span>
       </button>
-      <!-- 3. Quản lý -->
       <button onclick="switchTab('quanly')" id="nav-quanly" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
         <i class="ph ph-shield-check text-xl mb-0.5"></i>
         <span>Quản lý</span>
       </button>
-      <!-- 4. Quản trị -->
       <button onclick="switchTab('quantri')" id="nav-quantri" class="flex flex-col items-center justify-center text-slate-400 font-medium text-[10px]">
         <i class="ph ph-gear text-xl mb-0.5"></i>
         <span>Quản trị</span>
@@ -442,6 +536,9 @@
 
   <!-- ================= JAVASCRIPT ================= -->
   <script>
+    /**
+     * DÁN LINK WEB APP CỦA BẠN VÀO ĐÂY:
+     */
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySYCvcT5YlGk_7aPKqUQYeYmko93k7Bby9bvnuKoNNkieQeKwQ8OQEtYllNlgYHsKFZw/exec";
     const IMGBB_API_KEY = "9b4a10db15d694a88f3aa0d1ffbc0669";
 
@@ -455,7 +552,13 @@
     let qrValidityInterval = null;
     let isAdminUnlocked = false;
     let currentProgramFileId = null;
-    let pendingAssignData = null;
+    let rawPersonnelList = [];
+    let changedOldStaff = {};
+    let pendingExtraPerson = null;
+
+    let currentPersonnelRole = null; // 'ctv' hoặc 'manager'
+    let unlockedSchoolPins = {};
+    let currentSortMode = "default";
 
     window.addEventListener("DOMContentLoaded", () => {
       initDeviceId();
@@ -464,21 +567,29 @@
     });
 
     function initDeviceId() {
-      let devId = localStorage.getItem("aba_device_id");
-      if (!devId) {
-        devId = "DEV_" + Math.random().toString(36).substr(2, 9).toUpperCase();
-        localStorage.setItem("aba_device_id", devId);
+      try {
+        let devId = localStorage.getItem("aba_device_id");
+        if (!devId) {
+          devId = "DEV_" + Math.random().toString(36).substr(2, 9).toUpperCase();
+          localStorage.setItem("aba_device_id", devId);
+        }
+        return devId;
+      } catch (e) {
+        return "DEV_TMP_" + Math.random().toString(36).substr(2, 9).toUpperCase();
       }
-      return devId;
     }
 
     function checkSavedUser() {
-      const saved = localStorage.getItem("aba_user_profile");
-      if (saved) {
-        currentUser = JSON.parse(saved);
-        updateHeaderUser();
-        document.getElementById("loginModal").classList.add("hidden");
-      } else {
+      try {
+        const saved = localStorage.getItem("aba_user_profile");
+        if (saved) {
+          currentUser = JSON.parse(saved);
+          updateHeaderUser();
+          document.getElementById("loginModal").classList.add("hidden");
+        } else {
+          document.getElementById("loginModal").classList.remove("hidden");
+        }
+      } catch (e) {
         document.getElementById("loginModal").classList.remove("hidden");
       }
     }
@@ -489,7 +600,20 @@
       }
     }
 
-    // --- ĐIỀU HƯỚNG TABS & ƯU TIÊN ĐỒNG BỘ QUẢN LÝ -> ĐIỂM DANH ---
+    function onSchoolChange(source, val) {
+      if (!val) return;
+      const ctvSelect = document.getElementById("ctvSchoolSelect");
+      const mgrSelect = document.getElementById("mgrSchoolSelect");
+      const personnelSelect = document.getElementById("personnelSchoolSelect");
+
+      if (source === "mgr") {
+        if (personnelSelect) personnelSelect.value = val;
+      } else if (source === "ctv") {
+        if (mgrSelect && !mgrSelect.value) mgrSelect.value = val;
+        if (personnelSelect && !personnelSelect.value) personnelSelect.value = val;
+      }
+    }
+
     function switchTab(tabId) {
       ["diemdanh", "danhsach", "quanly", "quantri"].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add("hidden");
@@ -507,24 +631,115 @@
 
       if (tabId === "danhsach") {
         syncAndLoadPersonnel();
+      } else {
+        document.getElementById("floatingSaveBar").classList.add("hidden");
       }
     }
 
     function syncAndLoadPersonnel() {
       const mgrVal = document.getElementById("mgrSchoolSelect").value;
       const ctvVal = document.getElementById("ctvSchoolSelect").value;
-      // Ưu tiên lựa chọn ở tab Quản lý
       const targetSchool = mgrVal || ctvVal;
 
       const pSelect = document.getElementById("personnelSchoolSelect");
-      if (targetSchool) {
+      if (targetSchool && pSelect) {
         pSelect.value = targetSchool;
-        loadPersonnelList(targetSchool);
-      } else if (pSelect.value) {
-        loadPersonnelList(pSelect.value);
+        onPersonnelSchoolChange(targetSchool);
+      } else if (pSelect && pSelect.value) {
+        onPersonnelSchoolChange(pSelect.value);
       } else {
         document.getElementById("personnelTableContainer").innerHTML = 
           `<p class="text-xs text-center text-slate-400 py-8">Vui lòng chọn chương trình để xem danh sách nhân sự.</p>`;
+      }
+    }
+
+    function onPersonnelSchoolChange(schoolName) {
+      if (!schoolName) return;
+      // Khi chọn xong tên chương trình: Hiện popup hỏi Bạn là CTV hay Quản lý
+      if (!currentPersonnelRole) {
+        document.getElementById("roleSelectModal").classList.remove("hidden");
+      } else {
+        loadPersonnelList(schoolName);
+      }
+    }
+
+    function selectRole(role) {
+      document.getElementById("roleSelectModal").classList.add("hidden");
+      const schoolName = document.getElementById("personnelSchoolSelect").value;
+
+      if (role === "ctv") {
+        currentPersonnelRole = "ctv";
+        updateRoleBadge();
+        loadPersonnelList(schoolName);
+      } else if (role === "manager") {
+        if (unlockedSchoolPins[schoolName]) {
+          currentPersonnelRole = "manager";
+          updateRoleBadge();
+          loadPersonnelList(schoolName);
+        } else {
+          document.getElementById("mgrAuthPinInput").value = "";
+          document.getElementById("mgrAuthPinError").classList.add("hidden");
+          document.getElementById("managerPinAuthModal").classList.remove("hidden");
+        }
+      }
+    }
+
+    function updateRoleBadge() {
+      const badge = document.getElementById("currentRoleBadge");
+      if (currentPersonnelRole === "manager") {
+        badge.innerText = "Quản lý";
+        badge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-100 text-blue-700";
+      } else {
+        badge.innerText = "CTV";
+        badge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700";
+      }
+    }
+
+    function cancelManagerPinAuth() {
+      document.getElementById("managerPinAuthModal").classList.add("hidden");
+      currentPersonnelRole = "ctv";
+      updateRoleBadge();
+      const schoolName = document.getElementById("personnelSchoolSelect").value;
+      loadPersonnelList(schoolName);
+    }
+
+    async function confirmManagerPinAuth() {
+      const schoolName = document.getElementById("personnelSchoolSelect").value;
+      const pin = document.getElementById("mgrAuthPinInput").value.trim();
+      const errBox = document.getElementById("mgrAuthPinError");
+
+      if (!pin) {
+        errBox.innerText = "Vui lòng nhập mã PIN bảo mật!";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
+      errBox.classList.add("hidden");
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "verifySchoolPin",
+            schoolName: schoolName,
+            pin: pin
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          unlockedSchoolPins[schoolName] = pin;
+          currentPersonnelRole = "manager";
+          updateRoleBadge();
+          document.getElementById("managerPinAuthModal").classList.add("hidden");
+          loadPersonnelList(schoolName);
+        } else {
+          errBox.innerText = data.message || "Mã bảo mật không đúng!";
+          errBox.classList.remove("hidden");
+        }
+      } catch (err) {
+        errBox.innerText = "Lỗi xác thực: " + err.message;
+        errBox.classList.remove("hidden");
       }
     }
 
@@ -534,13 +749,73 @@
       else alert("Vui lòng chọn chương trình!");
     }
 
-    // --- TẢI DANH SÁCH NHÂN SỰ TỪ FILE PHÂN CÔNG ĐÃ TÌM ĐƯỢC ---
+    // --- CHỈ TẢI CÁC CHƯƠNG TRÌNH ĐANG DIỄN RA HÔM NAY[cite: 29] ---
+    async function loadPrograms() {
+      const ctvSelect = document.getElementById("ctvSchoolSelect");
+      const mgrSelect = document.getElementById("mgrSchoolSelect");
+      const personnelSelect = document.getElementById("personnelSchoolSelect");
+
+      if (!SCRIPT_URL || SCRIPT_URL.includes("YOUR_ACTUAL_EXEC_ID_HERE")) {
+        const warnHtml = `<option value="">⚠️ CHƯA THAY LINK SCRIPT_URL VÀO INDEX.HTML</option>`;
+        if (ctvSelect) ctvSelect.innerHTML = warnHtml;
+        if (mgrSelect) mgrSelect.innerHTML = warnHtml;
+        if (personnelSelect) personnelSelect.innerHTML = warnHtml;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getPrograms`);
+        const data = await res.json();
+
+        if (data.success) {
+          allPrograms = data.programs || [];
+          populateSchoolDropdowns();
+          renderAdminPrograms();
+        } else {
+          const errHtml = `<option value="">⚠️ Lỗi: ${data.message || 'Không có dữ liệu'}</option>`;
+          if (ctvSelect) ctvSelect.innerHTML = errHtml;
+          if (mgrSelect) mgrSelect.innerHTML = errHtml;
+          if (personnelSelect) personnelSelect.innerHTML = errHtml;
+        }
+      } catch (e) {
+        const errHtml = `<option value="">⚠️ Lỗi kết nối: ${e.message}</option>`;
+        if (ctvSelect) ctvSelect.innerHTML = errHtml;
+        if (mgrSelect) mgrSelect.innerHTML = errHtml;
+        if (personnelSelect) personnelSelect.innerHTML = errHtml;
+      }
+    }
+
+    function populateSchoolDropdowns() {
+      const ctvSelect = document.getElementById("ctvSchoolSelect");
+      const mgrSelect = document.getElementById("mgrSchoolSelect");
+      const personnelSelect = document.getElementById("personnelSchoolSelect");
+
+      const ongoing = (allPrograms || []).filter(p => p.status === "Đang diễn ra");
+
+      let optionsHtml = "";
+      if (ongoing.length > 0) {
+        optionsHtml = `<option value="">-- Chọn chương trình đang diễn ra hôm nay --</option>` +
+          ongoing.map(p => `<option value="${p.name}">${p.name}</option>`).join("");
+      } else {
+        optionsHtml = `<option value="">-- Không có chương trình nào đang diễn ra hôm nay --</option>`;
+      }
+
+      if (ctvSelect) ctvSelect.innerHTML = optionsHtml;
+      if (mgrSelect) mgrSelect.innerHTML = optionsHtml;
+      if (personnelSelect) personnelSelect.innerHTML = optionsHtml;
+    }
+
+    // --- TẢI DỮ LIỆU TỪ MÁY CHỦ ---
     async function loadPersonnelList(schoolName) {
       if (!schoolName) return;
 
       const container = document.getElementById("personnelTableContainer");
       const badge = document.getElementById("personnelFileBadge");
       const summaryBar = document.getElementById("personnelSummaryBar");
+      const floatingBar = document.getElementById("floatingSaveBar");
+
+      changedOldStaff = {};
+      floatingBar.classList.add("hidden");
 
       container.innerHTML = `<div class="p-8 text-center text-xs text-indigo-600 font-bold flex flex-col items-center">
         <i class="ph ph-spinner animate-spin text-3xl mb-2"></i>
@@ -559,138 +834,421 @@
         }
 
         currentProgramFileId = data.fileId;
+        rawPersonnelList = data.personnel || [];
+        availableTeamsGlobal = data.teams || [];
         badge.innerText = `📁 File tìm thấy: ${data.fileName}`;
         badge.classList.remove("hidden");
 
-        const list = data.personnel;
-        const teams = data.teams;
-
-        let inCount = 0, outCount = 0, extraCount = 0;
-        list.forEach(p => {
+        // Thống kê 5 chỉ số[cite: 33]
+        let inCount = 0, outCount = 0, photoCount = 0, extraCount = 0;
+        rawPersonnelList.forEach(p => {
           if (p.status === "Đã đến") inCount++;
           if (p.status === "Đã về") outCount++;
+          if (p.hasPhoto) photoCount++;
           if (p.isExtra) extraCount++;
         });
 
-        document.getElementById("statTotal").innerText = list.length;
+        document.getElementById("statTotal").innerText = rawPersonnelList.length;
         document.getElementById("statIn").innerText = inCount;
         document.getElementById("statOut").innerText = outCount;
+        document.getElementById("statPhoto").innerText = photoCount;
         document.getElementById("statExtra").innerText = extraCount;
         summaryBar.classList.remove("hidden");
 
-        if (list.length === 0) {
-          container.innerHTML = `<p class="text-xs text-center text-slate-400 py-8">Chưa có dữ liệu nhân sự trong sheet Phân công.</p>`;
-          return;
-        }
-
-        let tableHtml = `
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                <th class="p-2.5 text-center w-10">STT</th>
-                <th class="p-2.5">Họ và tên</th>
-                <th class="p-2.5">Số điện thoại</th>
-                <th class="p-2.5">Vị trí / Đội</th>
-                <th class="p-2.5 text-center">Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200">
-        `;
-
-        list.forEach(person => {
-          const isExtra = person.isExtra;
-          const rowBg = isExtra ? "bg-amber-50/90 font-medium border-l-4 border-amber-400" : "hover:bg-slate-50";
-
-          let statusBadge = "";
-          if (person.status === "Đã về") {
-            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300 whitespace-nowrap">Đã về</span>`;
-          } else if (person.status === "Đã đến") {
-            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">Đã đến</span>`;
-          } else {
-            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">Chưa đến</span>`;
-          }
-
-          let teamCell = "";
-          if (isExtra) {
-            const options = teams.map(t => `<option value="${t}">${t}</option>`).join("");
-            teamCell = `
-              <div class="flex items-center gap-1.5 min-w-[170px]">
-                <select id="teamSelect_${person.maCTV}" class="p-1 text-xs border border-amber-300 rounded bg-white font-medium focus:ring-1 focus:ring-amber-500">
-                  ${options}
-                </select>
-                <button onclick="handleAssignClick('${person.maCTV}', '${escape(person.hoTen)}', '${person.sdt}', '${person.timeIn}', '${person.timeOut}')" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded font-bold shadow-sm whitespace-nowrap">
-                  Lưu vị trí
-                </button>
-              </div>
-            `;
-          } else {
-            teamCell = `<span class="font-semibold text-slate-700">${person.team}</span>`;
-          }
-
-          const phoneCell = person.sdt 
-            ? `<a href="tel:${person.sdt}" class="text-indigo-600 hover:text-indigo-800 font-bold flex items-center space-x-1 whitespace-nowrap">
-                 <i class="ph ph-phone-call text-sm"></i>
-                 <span>${person.sdt}</span>
-               </a>`
-            : `<span class="text-slate-400">---</span>`;
-
-          tableHtml += `
-            <tr class="${rowBg}">
-              <td class="p-2.5 text-center font-bold text-slate-500">${person.stt}</td>
-              <td class="p-2.5 font-bold text-slate-800">
-                ${person.hoTen}
-                ${isExtra ? '<span class="ml-1 text-[9px] bg-amber-200 text-amber-900 px-1 py-0.5 rounded font-black">Bổ sung</span>' : ''}
-              </td>
-              <td class="p-2.5">${phoneCell}</td>
-              <td class="p-2.5">${teamCell}</td>
-              <td class="p-2.5 text-center">${statusBadge}</td>
-            </tr>
-          `;
-        });
-
-        tableHtml += `</tbody></table>`;
-        container.innerHTML = tableHtml;
+        renderPersonnelTable();
 
       } catch (err) {
         container.innerHTML = `<div class="p-6 text-center text-xs text-red-600 font-bold">Lỗi kết nối: ${err.message}</div>`;
       }
     }
 
-    // --- QUẢN TRỊ VIÊN PHÂN CÔNG ---
-    function handleAssignClick(maCTV, hoTenEscaped, sdt, timeIn, timeOut) {
-      const hoTen = unescape(hoTenEscaped);
-      const teamSelect = document.getElementById(`teamSelect_${maCTV}`);
-      const selectedTeam = teamSelect ? teamSelect.value : "";
+    let availableTeamsGlobal = [];
 
-      pendingAssignData = {
-        fileId: currentProgramFileId,
-        maCTV: maCTV,
-        hoTen: hoTen,
-        sdt: sdt,
-        team: selectedTeam,
-        timeIn: timeIn,
-        timeOut: timeOut
-      };
+    // --- HỖ TRỢ SẮP XẾP VÀ TRÍCH XUẤT SỐ LỚP ---
+    function extractClassNum(val) {
+      if (!val) return 99999;
+      const match = String(val).match(/\d+/);
+      return match ? parseInt(match[0], 10) : 99999;
+    }
 
-      if (!isAdminUnlocked) {
-        document.getElementById("adminAssignPasswordInput").value = "";
-        document.getElementById("adminAssignError").classList.add("hidden");
-        document.getElementById("adminAssignAuthModal").classList.remove("hidden");
+    function onSortChange(mode) {
+      currentSortMode = mode;
+      renderPersonnelTable();
+    }
+
+    function getSortedPersonnelList() {
+      const list = [...rawPersonnelList];
+      if (currentSortMode === "team") {
+        list.sort((a, b) => (a.team || "").localeCompare(b.team || ""));
+      } else if (currentSortMode === "ca1_asc") {
+        list.sort((a, b) => {
+          const vA = (a.ca1 || "").trim(), vB = (b.ca1 || "").trim();
+          if (!vA && !vB) return 0;
+          if (!vA) return 1;
+          if (!vB) return -1;
+          const nA = extractClassNum(vA), nB = extractClassNum(vB);
+          if (nA !== nB) return nA - nB;
+          return vA.localeCompare(vB);
+        });
+      } else if (currentSortMode === "ca1_desc") {
+        list.sort((a, b) => {
+          const vA = (a.ca1 || "").trim(), vB = (b.ca1 || "").trim();
+          if (!vA && !vB) return 0;
+          if (!vA) return 1;
+          if (!vB) return -1;
+          const nA = extractClassNum(vA), nB = extractClassNum(vB);
+          if (nA !== nB) return nB - nA;
+          return vB.localeCompare(vA);
+        });
+      } else if (currentSortMode === "ca2_asc") {
+        list.sort((a, b) => {
+          const vA = (a.ca2 || "").trim(), vB = (b.ca2 || "").trim();
+          if (!vA && !vB) return 0;
+          if (!vA) return 1;
+          if (!vB) return -1;
+          const nA = extractClassNum(vA), nB = extractClassNum(vB);
+          if (nA !== nB) return nA - nB;
+          return vA.localeCompare(vB);
+        });
+      } else if (currentSortMode === "ca2_desc") {
+        list.sort((a, b) => {
+          const vA = (a.ca2 || "").trim(), vB = (b.ca2 || "").trim();
+          if (!vA && !vB) return 0;
+          if (!vA) return 1;
+          if (!vB) return -1;
+          const nA = extractClassNum(vA), nB = extractClassNum(vB);
+          if (nA !== nB) return nB - nA;
+          return vB.localeCompare(vA);
+        });
       } else {
-        executeAssignExtraStaff();
+        // default STT
+        list.sort((a, b) => a.stt - b.stt);
+      }
+      return list;
+    }
+
+    // --- TÍNH TOÁN TRÙNG LẶP CHO CA 1 & CA 2 ---
+    function calculateDuplicateMap(key) {
+      const counts = {};
+      rawPersonnelList.forEach(p => {
+        const val = (p[key] || "").trim().toUpperCase();
+        if (val && val !== "-" && val !== "--") {
+          counts[val] = (counts[val] || 0) + 1;
+        }
+      });
+      return counts;
+    }
+
+    // --- VẼ BẢNG GIAO DIỆN (CỐ ĐỊNH STT VÀ HỌ TÊN, TỰ ĐỘNG BÔI MÀU TRÙNG LẶP)[cite: 31, 34] ---
+    function renderPersonnelTable() {
+      const container = document.getElementById("personnelTableContainer");
+      const list = getSortedPersonnelList();
+      const teams = availableTeamsGlobal;
+      const isManager = (currentPersonnelRole === "manager");
+
+      if (list.length === 0) {
+        container.innerHTML = `<p class="text-xs text-center text-slate-400 py-8">Chưa có dữ liệu nhân sự.</p>`;
+        return;
+      }
+
+      const ca1Counts = calculateDuplicateMap("ca1");
+      const ca2Counts = calculateDuplicateMap("ca2");
+
+      let tableHtml = `
+        <table class="w-full text-left border-collapse text-[11px] table-fixed">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <th class="p-1 text-center w-[24px]">★</th>
+              <th class="p-1 text-center w-[22px] sticky left-0 z-20 bg-slate-100">STT</th>
+              <th class="p-1.5 sticky left-[22px] z-20 bg-slate-100 w-[110px] text-left">Họ và tên</th>
+              <th class="p-0.5 w-[24px] text-center">📞</th>
+              <th class="p-1 w-[66px] text-center">Vị trí</th>
+              <th class="p-0.5 w-[32px] text-center">Ca1</th>
+              <th class="p-0.5 w-[32px] text-center">Ca2</th>
+              <th class="p-0.5 w-[36px] text-center">Check</th>
+              <th class="p-0.5 w-[24px] text-center">Ảnh</th>
+              <th class="p-1 w-[24px] text-center">🚫</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+      `;
+
+      list.forEach((person) => {
+        const ma = person.maCTV;
+        const isExtra = person.isExtra;
+        const stickyBg = isExtra ? "bg-amber-50" : "bg-white";
+        const rowBg = isExtra ? "bg-amber-50/90 font-medium border-l-2 border-amber-400" : "hover:bg-slate-50";
+
+        // Check: IN (xanh), OUT (đỏ), Thiếu (vàng)
+        let checkBadge = "";
+        if (person.status === "Đã đến") {
+          checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">IN</span>`;
+        } else if (person.status === "Đã về") {
+          checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-rose-100 text-rose-800">OUT</span>`;
+        } else {
+          checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-amber-100 text-amber-700">Thiếu</span>`;
+        }
+
+        // Ảnh: đặt ngay sau cột Check (✔ xanh / ✖ đỏ)
+        let photoBadge = "";
+        if (person.hasPhoto) {
+          photoBadge = `<a href="${person.photoUrl}" target="_blank" title="Xem ảnh check-in" class="text-emerald-600 font-black text-xs hover:underline">✔</a>`;
+        } else {
+          photoBadge = `<span title="Chưa có ảnh" class="text-rose-500 font-black text-[10px]">✖</span>`;
+        }
+
+        // Nút Sao (★): Viền xám mờ khi chưa chọn, vàng rực khi chọn
+        const isGood = (person.rating === "good");
+        const starIconHtml = isGood 
+          ? `<i class="ph-fill ph-star text-amber-400 text-base"></i>`
+          : `<i class="ph-bold ph-star text-slate-300 text-base"></i>`;
+        const starBtnHtml = isManager 
+          ? `<button onclick="toggleRating('${ma}', 'good')" class="star-btn focus:outline-none hover:scale-110 transition-transform">${starIconHtml}</button>`
+          : `<span class="star-btn opacity-60">${starIconHtml}</span>`;
+
+        // Nút Cấm (🚫): Mờ khi chưa chọn, đỏ tươi khi chọn
+        const isBanned = (person.rating === "banned");
+        const banIconHtml = isBanned 
+          ? `<i class="ph-fill ph-prohibit text-red-600 text-base"></i>`
+          : `<i class="ph-bold ph-prohibit text-slate-300 text-base"></i>`;
+        const banBtnHtml = isManager 
+          ? `<button onclick="toggleRating('${ma}', 'banned')" class="ban-btn focus:outline-none hover:scale-110 transition-transform">${banIconHtml}</button>`
+          : `<span class="ban-btn opacity-60">${banIconHtml}</span>`;
+
+        // Menu Vị trí / Đội
+        let teamCell = "";
+        if (isManager) {
+          let teamOptions = `<option value="">--</option>`;
+          teams.forEach(t => {
+            const isSel = (person.team === t) ? "selected" : "";
+            teamOptions += `<option value="${t}" ${isSel}>${t}</option>`;
+          });
+          if (person.team && !teams.includes(person.team)) {
+            teamOptions += `<option value="${person.team}" selected>${person.team}</option>`;
+          }
+          teamCell = `
+            <select id="teamSel_${ma}" onchange="handleTeamChange('${ma}')" class="w-full p-0.5 text-[10px] border border-slate-300 rounded bg-white font-medium focus:ring-1 focus:ring-indigo-500 truncate">
+              ${teamOptions}
+            </select>
+          `;
+        } else {
+          teamCell = `<span class="font-bold text-slate-700 truncate block text-[10px]">${person.team || '-'}</span>`;
+        }
+
+        // Kiểm tra màu trùng lặp lớp Ca 1 & Ca 2:
+        // 2 lớp trùng -> nền vàng (#fef08a)
+        // >= 3 lớp trùng -> nền đỏ (#fecaca)
+        const val1 = (person.ca1 || "").trim().toUpperCase();
+        const cnt1 = ca1Counts[val1] || 0;
+        let bgStyle1 = "background-color: transparent;";
+        if (cnt1 === 2) bgStyle1 = "background-color: #fef08a; color: #854d0e; font-weight: bold; border-color: #facc15;";
+        else if (cnt1 >= 3) bgStyle1 = "background-color: #fecaca; color: #991b1b; font-weight: bold; border-color: #f87171;";
+
+        const val2 = (person.ca2 || "").trim().toUpperCase();
+        const cnt2 = ca2Counts[val2] || 0;
+        let bgStyle2 = "background-color: transparent;";
+        if (cnt2 === 2) bgStyle2 = "background-color: #fef08a; color: #854d0e; font-weight: bold; border-color: #facc15;";
+        else if (cnt2 >= 3) bgStyle2 = "background-color: #fecaca; color: #991b1b; font-weight: bold; border-color: #f87171;";
+
+        let ca1Html = person.ca1 || "-";
+        let ca2Html = person.ca2 || "-";
+        if (isManager && !isExtra) {
+          ca1Html = `<input type="text" id="ca1_${ma}" value="${person.ca1 || ''}" oninput="handleCaInput('${ma}', 1, this.value)" style="${bgStyle1}" class="w-full text-center p-0 text-[10px] border border-slate-200 rounded focus:border-indigo-500">`;
+          ca2Html = `<input type="text" id="ca2_${ma}" value="${person.ca2 || ''}" oninput="handleCaInput('${ma}', 2, this.value)" style="${bgStyle2}" class="w-full text-center p-0 text-[10px] border border-slate-200 rounded focus:border-indigo-500">`;
+        } else {
+          ca1Html = `<span style="${bgStyle1}" class="px-1 py-0.5 rounded text-[10px] block">${person.ca1 || '-'}</span>`;
+          ca2Html = `<span style="${bgStyle2}" class="px-1 py-0.5 rounded text-[10px] block">${person.ca2 || '-'}</span>`;
+        }
+
+        // Cột SĐT chỉ hiện hình điện thoại 📞, không hiện số
+        const phoneCell = person.sdt 
+          ? `<a href="tel:${person.sdt}" title="Gọi ${person.sdt}" class="inline-flex items-center justify-center text-indigo-600 hover:text-indigo-800 text-sm">
+               <i class="ph ph-phone-call"></i>
+             </a>`
+          : `<span class="text-slate-300">-</span>`;
+
+        tableHtml += `
+          <tr id="row_${ma}" class="${rowBg}">
+            <td class="p-1 text-center">${starBtnHtml}</td>
+            <td class="p-1 text-center font-bold text-slate-500 sticky left-0 z-10 ${stickyBg}">${person.stt}</td>
+            <td class="p-1.5 font-bold text-slate-800 sticky left-[22px] z-10 ${stickyBg} whitespace-normal break-words leading-tight" title="${person.hoTen}">
+              ${person.hoTen}
+              ${isExtra ? '<span class="block text-[8px] text-amber-700 font-black">Bổ sung</span>' : ''}
+            </td>
+            <td class="p-0.5 text-center">${phoneCell}</td>
+            <td class="p-1">${teamCell}</td>
+            <td class="p-0.5 text-center">${ca1Html}</td>
+            <td class="p-0.5 text-center">${ca2Html}</td>
+            <td class="p-0.5 text-center">${checkBadge}</td>
+            <td class="p-0.5 text-center">${photoBadge}</td>
+            <td class="p-1 text-center">${banBtnHtml}</td>
+          </tr>
+        `;
+      });
+
+      tableHtml += `</tbody></table>`;
+      container.innerHTML = tableHtml;
+    }
+
+    // --- TOGGLE ĐÁNH DẤU SAO / CẤM (ĐỔI GIAO DIỆN TỨC THÌ 0MS - KHÔNG XOAY TẢI) ---
+    function toggleRating(maCTV, type) {
+      const person = rawPersonnelList.find(p => p.maCTV === maCTV);
+      if (!person) return;
+
+      if (person.rating === type) {
+        person.rating = null; // Bỏ đánh dấu
+      } else {
+        person.rating = type; // Gán 'good' hoặc 'banned'
+      }
+
+      // CẬP NHẬT TRỰC TIẾP ICON TRÊN GIAO DIỆN (KHÔNG GỌI LẠI LOAD DANH SÁCH)
+      const rowEl = document.getElementById(`row_${maCTV}`);
+      if (rowEl) {
+        const starBtn = rowEl.querySelector(".star-btn");
+        const banBtn = rowEl.querySelector(".ban-btn");
+        if (starBtn) {
+          starBtn.innerHTML = (person.rating === "good")
+            ? `<i class="ph-fill ph-star text-amber-400 text-base"></i>`
+            : `<i class="ph-bold ph-star text-slate-300 text-base"></i>`;
+        }
+        if (banBtn) {
+          banBtn.innerHTML = (person.rating === "banned")
+            ? `<i class="ph-fill ph-prohibit text-red-600 text-base"></i>`
+            : `<i class="ph-bold ph-prohibit text-slate-300 text-base"></i>`;
+        }
+      }
+
+      // Ghi nhận thay đổi để hiện nút Lưu thay đổi nổi
+      if (!person.isExtra) {
+        const sel = document.getElementById(`teamSel_${maCTV}`);
+        changedOldStaff[maCTV] = {
+          rowNumber: person.rowNumber,
+          team: sel ? sel.value : person.team,
+          ca1: person.ca1,
+          ca2: person.ca2,
+          rating: person.rating
+        };
+        updateFloatingSaveBar();
       }
     }
 
-    function closeAdminAssignAuthModal() {
-      document.getElementById("adminAssignAuthModal").classList.add("hidden");
+    // --- XỬ LÝ CHỌN ĐỘI CHO NGƯỜI BỔ SUNG VS NGƯỜI CŨ[cite: 32] ---
+    function handleTeamChange(maCTV) {
+      const person = rawPersonnelList.find(p => p.maCTV === maCTV);
+      if (!person) return;
+
+      const sel = document.getElementById(`teamSel_${maCTV}`);
+      const newTeam = sel.value;
+
+      if (person.isExtra) {
+        // NGƯỜI BỔ SUNG: Bật cửa sổ che 1 phần màn hình xác nhận[cite: 32]
+        if (!newTeam) return;
+        pendingExtraPerson = {
+          maCTV: person.maCTV,
+          hoTen: person.hoTen,
+          sdt: person.sdt,
+          team: newTeam,
+          timeIn: person.timeIn,
+          timeOut: person.timeOut
+        };
+
+        document.getElementById("extraConfirmText").innerHTML = 
+          `Xác nhận phân công nhân sự bổ sung: <br><b class="text-sm text-indigo-700">[${person.maCTV}] ${person.hoTen}</b> <br>vào vị trí: <b class="text-amber-800">${newTeam}</b>`;
+        document.getElementById("extraAdminPassInput").value = "";
+        document.getElementById("extraConfirmError").classList.add("hidden");
+        document.getElementById("extraConfirmModal").classList.remove("hidden");
+
+      } else {
+        // NGƯỜI CŨ: Ghi nhận và hiển thị thanh nút nổi trượt theo bảng
+        person.team = newTeam;
+        changedOldStaff[maCTV] = {
+          rowNumber: person.rowNumber,
+          team: newTeam,
+          ca1: person.ca1,
+          ca2: person.ca2,
+          rating: person.rating
+        };
+        updateFloatingSaveBar();
+      }
     }
 
-    async function confirmAdminAssignAuth() {
-      const pass = document.getElementById("adminAssignPasswordInput").value.trim();
-      const errBox = document.getElementById("adminAssignError");
+    // --- CẬP NHẬT CA 1 & CA 2 VÀ CẬP NHẬT MÀU TRÙNG LẶP THỜI GIAN THỰC ---
+    function handleCaInput(maCTV, caIndex, val) {
+      const person = rawPersonnelList.find(p => p.maCTV === maCTV);
+      if (!person) return;
 
-      if (!pass) {
-        errBox.innerText = "Vui lòng nhập mật khẩu!";
+      if (caIndex === 1) person.ca1 = val;
+      if (caIndex === 2) person.ca2 = val;
+
+      changedOldStaff[maCTV] = {
+        rowNumber: person.rowNumber,
+        team: person.team,
+        ca1: person.ca1,
+        ca2: person.ca2,
+        rating: person.rating
+      };
+      updateFloatingSaveBar();
+
+      // Cập nhật lại màu sắc trùng lặp cho toàn bộ cột tương ứng
+      refreshDuplicateHighlightStyles(caIndex === 1 ? "ca1" : "ca2");
+    }
+
+    function refreshDuplicateHighlightStyles(key) {
+      const counts = calculateDuplicateMap(key);
+      rawPersonnelList.forEach(p => {
+        const ma = p.maCTV;
+        const inputEl = document.getElementById(`${key}_${ma}`);
+        if (!inputEl) return;
+
+        const val = (p[key] || "").trim().toUpperCase();
+        const cnt = counts[val] || 0;
+
+        if (cnt === 2) {
+          inputEl.style.backgroundColor = "#fef08a";
+          inputEl.style.color = "#854d0e";
+          inputEl.style.fontWeight = "bold";
+          inputEl.style.borderColor = "#facc15";
+        } else if (cnt >= 3) {
+          inputEl.style.backgroundColor = "#fecaca";
+          inputEl.style.color = "#991b1b";
+          inputEl.style.fontWeight = "bold";
+          inputEl.style.borderColor = "#f87171";
+        } else {
+          inputEl.style.backgroundColor = "transparent";
+          inputEl.style.color = "inherit";
+          inputEl.style.fontWeight = "normal";
+          inputEl.style.borderColor = "#e2e8f0";
+        }
+      });
+    }
+
+    function updateFloatingSaveBar() {
+      const count = Object.keys(changedOldStaff).length;
+      const bar = document.getElementById("floatingSaveBar");
+      if (count > 0 && currentPersonnelRole === "manager") {
+        document.getElementById("floatingSaveText").innerText = `Có ${count} thay đổi phân công`;
+        bar.classList.remove("hidden");
+      } else {
+        bar.classList.add("hidden");
+      }
+    }
+
+    // --- THAO TÁC NGƯỜI BỔ SUNG: ĐỒNG Ý / BỎ QUA ---
+    function cancelExtraStaff() {
+      if (pendingExtraPerson) {
+        const sel = document.getElementById(`teamSel_${pendingExtraPerson.maCTV}`);
+        if (sel) sel.value = "";
+      }
+      pendingExtraPerson = null;
+      document.getElementById("extraConfirmModal").classList.add("hidden");
+    }
+
+    async function confirmExtraStaff() {
+      const adminPass = document.getElementById("extraAdminPassInput").value.trim();
+      const errBox = document.getElementById("extraConfirmError");
+
+      if (!adminPass) {
+        errBox.innerText = "Vui lòng nhập mật khẩu Quản trị (ô D1)!";
         errBox.classList.remove("hidden");
         return;
       }
@@ -700,83 +1258,67 @@
       try {
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
-          body: JSON.stringify({ action: "verifyAdmin", password: pass })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          isAdminUnlocked = true;
-          closeAdminAssignAuthModal();
-          executeAssignExtraStaff();
-        } else {
-          errBox.innerText = data.message || "Mật khẩu Admin không đúng!";
-          errBox.classList.remove("hidden");
-        }
-      } catch (err) {
-        errBox.innerText = "Lỗi xác thực: " + err.message;
-        errBox.classList.remove("hidden");
-      }
-    }
-
-    async function executeAssignExtraStaff() {
-      if (!pendingAssignData) return;
-
-      const confirmMsg = `Xác nhận phân công ${pendingAssignData.hoTen} (${pendingAssignData.maCTV}) vào ${pendingAssignData.team}?`;
-      if (!confirm(confirmMsg)) return;
-
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
           body: JSON.stringify({
             action: "assignExtraStaff",
-            ...pendingAssignData
+            adminPassword: adminPass,
+            fileId: currentProgramFileId,
+            ...pendingExtraPerson
           })
         });
         const data = await res.json();
 
         if (data.success) {
           alert(data.message);
+          document.getElementById("extraConfirmModal").classList.add("hidden");
+          pendingExtraPerson = null;
+          refreshPersonnelList();
+        } else {
+          errBox.innerText = data.message || "Mật khẩu Quản trị không chính xác!";
+          errBox.classList.remove("hidden");
+        }
+      } catch (err) {
+        errBox.innerText = "Lỗi kết nối: " + err.message;
+        errBox.classList.remove("hidden");
+      }
+    }
+
+    // --- THAO TÁC LƯU THAY ĐỔI NGƯỜI CŨ (DÙNG MÃ PIN TRƯỜNG ĐÃ XÁC THỰC) ---
+    async function saveAllAssignments() {
+      const assignmentsList = Object.values(changedOldStaff);
+      if (assignmentsList.length === 0) return alert("Không có thay đổi nào!");
+
+      const schoolName = document.getElementById("personnelSchoolSelect").value;
+      const cachedPin = unlockedSchoolPins[schoolName] || "";
+
+      if (!confirm(`Xác nhận lưu thay đổi phân công cho ${assignmentsList.length} nhân sự?`)) return;
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "updateAssignments",
+            fileId: currentProgramFileId,
+            schoolName: schoolName,
+            schoolPin: cachedPin,
+            assignments: assignmentsList
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert(data.message);
+          changedOldStaff = {};
+          document.getElementById("floatingSaveBar").classList.add("hidden");
           refreshPersonnelList();
         } else {
           alert("Lỗi: " + data.message);
         }
       } catch (e) {
-        alert("Lỗi khi lưu phân công: " + e.message);
+        alert("Lỗi khi lưu: " + e.message);
       }
     }
 
-    // --- TẢI DANH SÁCH CHƯƠNG TRÌNH ---
-    async function loadPrograms() {
-      try {
-        const res = await fetch(`${SCRIPT_URL}?action=getPrograms`);
-        const data = await res.json();
-        if (data.success) {
-          allPrograms = data.programs;
-          populateSchoolDropdowns();
-          renderAdminPrograms();
-        }
-      } catch (e) {
-        console.error("Lỗi tải trường:", e);
-      }
-    }
-
-    function populateSchoolDropdowns() {
-      const ctvSelect = document.getElementById("ctvSchoolSelect");
-      const mgrSelect = document.getElementById("mgrSchoolSelect");
-      const personnelSelect = document.getElementById("personnelSchoolSelect");
-
-      const ongoing = allPrograms.filter(p => p.status === "Đang diễn ra");
-      const optionsHtml = ongoing.length > 0
-        ? `<option value="">-- Chọn trường đang diễn ra hôm nay --</option>` +
-          ongoing.map(p => `<option value="${p.name}">${p.name}</option>`).join("")
-        : `<option value="">-- Không có trường nào đang diễn ra hôm nay --</option>`;
-
-      ctvSelect.innerHTML = optionsHtml;
-      mgrSelect.innerHTML = optionsHtml;
-      personnelSelect.innerHTML = optionsHtml;
-    }
-
-    // --- CHỤP ẢNH SELFIE (CHỈ DÙNG WEBCAM) ---
+    // --- CHỤP ẢNH SELFIE ---
     async function startSelfieCamera() {
       const video = document.getElementById("selfieVideo");
       const placeholder = document.getElementById("cameraPlaceholder");
@@ -797,7 +1339,7 @@
         showFullScreenAlert({
           statusType: "warning",
           title: "KHÔNG THỂ BẬT CAMERA",
-          subtitle: "Vui lòng cho phép quyền truy cập Camera trên trình duyệt của bạn!"
+          subtitle: "Vui lòng cho phép quyền truy cập Camera trên trình duyệt!"
         });
       }
     }
@@ -899,7 +1441,6 @@
         const data = await res.json();
 
         if (data.success) {
-          // Thông báo này giữ nguyên inline theo yêu cầu
           statusText.innerText = "✓ Ảnh đã tải lên và lưu link thành công!";
           statusText.className = "text-xs text-center font-bold text-emerald-600";
           checkMyAttendance("checkin");
@@ -954,9 +1495,9 @@
         if (typeof QRCode !== "undefined") {
           new QRCode(container, {
             text: unescape(encodeURIComponent(qrPayloadStr)),
-            width: 190,
-            height: 190,
-            correctLevel: QRCode.CorrectLevel.M
+            width: 200,
+            height: 200,
+            correctLevel: QRCode.CorrectLevel.L
           });
 
           setTimeout(() => {
@@ -971,7 +1512,7 @@
         }
       } catch (err) {
         const img = document.createElement("img");
-        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=" + encodeURIComponent(qrPayloadStr);
+        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(qrPayloadStr);
         img.alt = "Mã QR";
         img.className = "w-48 h-48 mx-auto rounded-xl shadow-sm";
         container.appendChild(img);
@@ -1000,7 +1541,7 @@
       }, 1000);
     }
 
-    // --- KIỂM TRA ĐIỂM DANH: BẬT CỬA SỔ TOÀN MÀN HÌNH THEO YÊU CẦU ---
+    // --- KIỂM TRA ĐIỂM DANH: CỬA SỔ TOÀN MÀN HÌNH ---
     async function checkMyAttendance(type) {
       const school = document.getElementById("ctvSchoolSelect").value;
       if (!school) {
@@ -1025,7 +1566,6 @@
               details: [`Họ tên: ${currentUser.hoTen}`, `Trường: ${school}`]
             });
           } else {
-            // Cửa sổ to màu vàng cảnh báo
             showFullScreenAlert({
               statusType: "warning",
               title: "HÃY CHECK IN VỚI QUẢN LÝ",
@@ -1041,7 +1581,6 @@
               details: [`Họ tên: ${currentUser.hoTen}`, `Trường: ${school}`]
             });
           } else {
-            // Cửa sổ to màu cảnh báo
             showFullScreenAlert({
               statusType: "warning",
               title: "CHECK OUT CHƯA THÀNH CÔNG",
@@ -1058,7 +1597,7 @@
       }
     }
 
-    // --- TAB QUẢN LÝ ---
+    // --- TAB QUẢN LÝ: CAMERA QUÉT PHẦN CỨNG ---
     function setScanMode(mode) {
       selectedScanMode = mode;
       const badge = document.getElementById("scanModeBadge");
@@ -1090,8 +1629,19 @@
       document.getElementById("btnStartScanner").disabled = true;
       document.getElementById("btnStopScanner").disabled = false;
 
-      html5QrScanner = new Html5Qrcode("reader");
-      const config = { fps: 25, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
+      html5QrScanner = new Html5Qrcode("reader", {
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+        verbose: false
+      });
+
+      const config = {
+        fps: 25,
+        qrbox: function(w, h) {
+          const s = Math.floor(Math.min(w, h) * 0.85);
+          return { width: s, height: s };
+        },
+        aspectRatio: 1.0
+      };
 
       try {
         await html5QrScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
@@ -1117,6 +1667,7 @@
     }
 
     async function onScanSuccess(decodedText) {
+      if (navigator.vibrate) navigator.vibrate(80);
       if (html5QrScanner) html5QrScanner.pause();
 
       let qrData;
@@ -1181,7 +1732,7 @@
       }
     }
 
-    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH (CHE HẦU HẾT MÀN HÌNH) ---
+    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH ---
     function showFullScreenAlert(config) {
       const modal = document.getElementById("fullScreenFeedbackModal");
       const card = document.getElementById("feedbackCard");
@@ -1202,7 +1753,6 @@
         details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
         guide.className = "text-xs font-semibold opacity-90 animate-pulse text-white";
       } else {
-        // Cảnh báo vàng: như ảnh người dùng gửi
         card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-amber-400 text-slate-900 border-amber-300";
         iconBox.innerHTML = `<i class="ph ph-warning-octagon text-7xl text-amber-900"></i>`;
         details.className = "bg-amber-100/90 rounded-2xl p-3 text-xs space-y-1 mb-4 font-semibold text-slate-900";
