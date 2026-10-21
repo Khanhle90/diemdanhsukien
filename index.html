@@ -1091,7 +1091,7 @@
       document.getElementById("btnStopScanner").disabled = false;
 
       html5QrScanner = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
+      const config = { fps: 25, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
 
       try {
         await html5QrScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
