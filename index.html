@@ -90,30 +90,30 @@
     </div>
   </div>
 
-  <!-- ================= MODAL NHẬP MÃ BẢO MẬT CHƯƠNG TRÌNH CHO QUẢN LÝ ================= -->
-  <div id="managerPinAuthModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
+  <!-- ================= MODAL BẢO MẬT CHƯƠNG TRÌNH (DÙNG CHO CẢ TAB QUẢN LÝ VÀ TAB DANH SÁCH) ================= -->
+  <div id="programPinAuthModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
       <div class="flex items-center space-x-2 text-blue-700 font-bold border-b pb-2">
         <i class="ph ph-lock-key text-xl"></i>
-        <span>Xác Thực Quản Lý</span>
+        <span>Bảo Mật Chương Trình</span>
       </div>
-      <p class="text-xs text-slate-600">
-        Vui lòng nhập <b>Mã bảo mật của chương trình (PIN)</b> để kích hoạt quyền quản lý:
+      <p class="text-xs text-slate-700 font-semibold">
+        Điền mã số bảo mật chương trình:
       </p>
-      <input type="password" id="mgrAuthPinInput" placeholder="Nhập mã PIN trường..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500">
-      <div id="mgrAuthPinError" class="text-xs text-red-600 font-semibold hidden"></div>
+      <input type="password" id="programAuthPinInput" placeholder="Nhập mã bảo mật chương trình..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500">
+      <div id="programAuthPinError" class="text-xs text-red-600 font-semibold hidden"></div>
       <div class="grid grid-cols-2 gap-2 pt-2">
-        <button onclick="confirmManagerPinAuth()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
+        <button onclick="confirmProgramPinAuth()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
           Xác Nhận
         </button>
-        <button onclick="cancelManagerPinAuth()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
+        <button onclick="cancelProgramPinAuth()" class="bg-slate-200 text-slate-700 text-xs py-2.5 rounded-lg font-medium">
           Hủy Bỏ
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL XÁC NHẬN PHÂN CÔNG NHÂN SỰ BỔ SUNG (MẬT KHẨU ADMIN Ô D1)[cite: 32] ================= -->
+  <!-- ================= MODAL XÁC NHẬN PHÂN CÔNG NHÂN SỰ BỔ SUNG (MẬT KHẨU ADMIN Ô D1) ================= -->
   <div id="extraConfirmModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
       <div class="flex items-center space-x-2 text-amber-600 font-bold border-b pb-2">
@@ -149,8 +149,11 @@
         <i class="ph ph-key text-xl"></i>
         <span>Xác Thực Đổi Tài Khoản</span>
       </div>
-      <p class="text-xs text-slate-600">Nhập mật khẩu cấp quyền (được cài đặt tại ô <b>F1</b> trên Google Sheets):</p>
-      <input type="password" id="switchAccountPasswordInput" placeholder="Nhập mật khẩu..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <div class="text-xs text-slate-600 space-y-1">
+        <p>Hệ thống tự động khóa vĩnh viễn Tên và số điện thoại đã đăng nhập trên máy này.</p>
+        <p class="font-medium text-slate-700">Liên hệ Quản lý/Leader phụ trách nhân sự nếu cần đổi tài khoản.</p>
+      </div>
+      <input type="password" id="switchAccountPasswordInput" placeholder="Nhập mật khẩu cấp quyền..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
       <div id="switchAccountError" class="text-xs text-red-600 font-semibold hidden"></div>
       <div class="grid grid-cols-2 gap-2 pt-2">
         <button onclick="confirmSwitchAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
@@ -214,7 +217,7 @@
         <div class="flex items-center justify-between border-b pb-2 mb-3">
           <div class="flex items-center space-x-2 text-indigo-700 font-bold">
             <i class="ph ph-chalkboard-teacher text-xl"></i>
-            <span>1. Chọn Chương Trình Đi Làm</span>
+            <span>1. Chọn chương trình</span>
           </div>
           <button onclick="loadPrograms()" class="text-[11px] text-indigo-600 font-bold hover:underline flex items-center space-x-0.5">
             <i class="ph ph-arrows-clockwise text-xs"></i>
@@ -224,16 +227,16 @@
         <select id="ctvSchoolSelect" onchange="onSchoolChange('ctv', this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
           <option value="">-- Đang tải danh sách trường --</option>
         </select>
-        <p class="text-[11px] text-slate-500 mt-1.5">* Chỉ hiển thị các chương trình đang diễn ra hôm nay[cite: 29]</p>
+        <p class="text-[11px] text-slate-500 mt-1.5">* Chỉ hiển thị các chương trình đang diễn ra hôm nay</p>
       </div>
 
-      <!-- 2. Chụp ảnh selfie check in[cite: 30] -->
+      <!-- 2. Chụp ảnh selfie check in -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-1 border-b pb-2">
           <i class="ph ph-camera text-xl"></i>
           <span>2. Chụp ảnh selfie check in</span>
         </div>
-        <p class="text-[11px] text-slate-500 mb-3 italic">Hãy chụp ảnh rõ mặt ở vị trí có tên trường.</p>
+        <p class="text-[11px] text-slate-500 mb-3 italic">Hãy chụp ảnh rõ mặt ở vị trí có tên trường hoặc sân khấu của trường</p>
         
         <div class="space-y-3">
           <div class="grid grid-cols-2 gap-2">
@@ -298,6 +301,7 @@
               Kiểm tra check out
             </button>
           </div>
+          <p class="text-[11px] text-slate-500 text-center font-medium">Hãy kiểm tra để chắc chắn mình đã check in/out thành công.</p>
         </div>
       </div>
     </section>
@@ -319,21 +323,20 @@
           </div>
         </div>
 
-        <!-- Chọn trường -->
         <div>
           <select id="personnelSchoolSelect" onchange="onPersonnelSchoolChange(this.value)" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 font-medium">
             <option value="">-- Đang đồng bộ chương trình --</option>
           </select>
         </div>
 
-        <!-- THANH CÔNG CỤ SẮP XẾP (SORT) -->
+        <!-- THANH CÔNG CỤ SẮP XẾP -->
         <div class="flex items-center justify-between gap-1.5 pt-0.5">
           <div class="flex items-center space-x-1 text-slate-600">
             <i class="ph ph-sort-ascending text-sm text-indigo-600"></i>
             <span class="text-[10px] font-bold whitespace-nowrap">Sắp xếp:</span>
           </div>
           <select id="sortPersonnelSelect" onchange="onSortChange(this.value)" class="flex-1 p-1 text-[10px] border border-slate-300 rounded-lg bg-white font-semibold focus:ring-1 focus:ring-indigo-500">
-            <option value="default">Mặc định (STT ban đầu)</option>
+            <option value="default">Mặc định (STT)</option>
             <option value="team">Theo Vị trí / Đội</option>
             <option value="ca1_asc">Ca 1: Lớp nhỏ → lớn (1A, 2B...)</option>
             <option value="ca1_desc">Ca 1: Lớp lớn → nhỏ (5B, 4A...)</option>
@@ -342,7 +345,7 @@
           </select>
         </div>
 
-        <!-- 5 Ô THỐNG KÊ QUÂN SỐ & GỬI ẢNH[cite: 33] -->
+        <!-- 5 Ô THỐNG KÊ QUÂN SỐ & GỬI ẢNH -->
         <div id="personnelSummaryBar" class="grid grid-cols-5 gap-1 text-center pt-0.5 hidden">
           <div class="bg-slate-100 p-1 rounded-md border border-slate-200">
             <span class="block text-[8px] text-slate-500 font-bold">TỔNG</span>
@@ -367,7 +370,7 @@
         </div>
       </div>
 
-      <!-- BẢNG NHÂN SỰ TỐI ƯU GỌN KHÍT, KHÔNG KÉO NGANG, HIỆN HẾT HỌ TÊN, CÓ KIỂM TRA TRÙNG LẶP -->
+      <!-- BẢNG NHÂN SỰ TỐI ƯU GỌN KHÍT -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div id="personnelFileBadge" class="bg-indigo-50 px-2.5 py-1.5 text-[10px] font-bold text-indigo-700 border-b border-indigo-100 hidden truncate"></div>
         
@@ -383,19 +386,14 @@
         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Cấu hình ca làm việc hiện trường</h3>
         
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Chương trình hiện trường</label>
-          <select id="mgrSchoolSelect" onchange="onSchoolChange('mgr', this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Chọn chương trình</label>
+          <select id="mgrSchoolSelect" onchange="onMgrSchoolSelectChange(this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 font-medium">
             <option value="">-- Đang tải trường --</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Mã bảo mật trường</label>
-          <input type="password" id="mgrSchoolPin" placeholder="Nhập mã do Admin cấp" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Chế độ quét bắt buộc</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Chế độ quét điểm danh</label>
           <div class="grid grid-cols-2 gap-2">
             <button onclick="setScanMode('checkin')" id="btnModeCheckin" class="py-2 rounded-lg text-xs font-bold border-2 border-emerald-500 bg-emerald-50 text-emerald-700">
               Quét Check-in
@@ -405,19 +403,9 @@
             </button>
           </div>
         </div>
-
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button onclick="startQrScanner()" id="btnStartScanner" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-lg font-bold flex items-center justify-center space-x-1 shadow">
-            <i class="ph ph-camera text-base"></i>
-            <span>Bật Camera Quét</span>
-          </button>
-          <button onclick="stopQrScanner()" id="btnStopScanner" disabled class="bg-red-600 disabled:opacity-50 hover:bg-red-700 text-white text-xs py-2.5 rounded-lg font-bold flex items-center justify-center space-x-1 shadow">
-            <i class="ph ph-x-circle text-base"></i>
-            <span>Đóng Camera</span>
-          </button>
-        </div>
       </div>
 
+      <!-- MÀN HÌNH MÁY QUÉT TỰ ĐỘNG BẬT KHI NHẬP ĐÚNG MÃ -->
       <div id="managerScannerSection" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
         <div class="flex justify-between items-center mb-2">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Màn hình máy quét</span>
@@ -425,7 +413,7 @@
         </div>
 
         <div id="reader" class="scanner-view overflow-hidden bg-black rounded-lg min-h-[220px] flex items-center justify-center text-white text-xs">
-          <span class="text-slate-400">Camera đang tắt.</span>
+          <span class="text-slate-400">Chọn chương trình và nhập mã để bật Camera</span>
         </div>
       </div>
     </section>
@@ -438,7 +426,7 @@
           <span>Xác Thực Quản Trị Viên</span>
         </div>
         <div class="space-y-3">
-          <p class="text-xs text-slate-500">Mật khẩu được đồng bộ trực tiếp tại ô <b>D1</b> trên Google Sheets[cite: 1].</p>
+          <p class="text-xs text-slate-500">Mật khẩu được đồng bộ trực tiếp tại ô <b>D1</b> trên Google Sheets.</p>
           <input type="password" id="adminPasswordInput" placeholder="Nhập mật khẩu Admin" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300">
           <button onclick="verifyAdminPassword()" class="w-full bg-indigo-600 text-white text-xs py-2.5 rounded-lg font-bold">Truy Cập Quản Trị</button>
         </div>
@@ -500,7 +488,7 @@
 
   </main>
 
-  <!-- ================= THANH NÚT NỔI "LƯU THAY ĐỔI" TRƯỢT DỌC THEO BẢNG ================= -->
+  <!-- ================= THANH NÚT NỔI "LƯU THAY ĐỔI" TRƯỢT THEO BẢNG ================= -->
   <div id="floatingSaveBar" class="fixed bottom-14 left-0 right-0 z-30 bg-amber-500 text-white px-4 py-2.5 shadow-xl flex justify-between items-center max-w-md mx-auto hidden transition-all">
     <div class="flex items-center space-x-1.5">
       <i class="ph ph-warning-circle text-lg animate-bounce"></i>
@@ -557,8 +545,9 @@
     let pendingExtraPerson = null;
 
     let currentPersonnelRole = null; // 'ctv' hoặc 'manager'
-    let unlockedSchoolPins = {};
+    let unlockedSchoolPins = {}; // Ghi nhớ mã PIN theo từng trường
     let currentSortMode = "default";
+    let pinAuthTargetTab = "danhsach"; // Lưu tab đang gọi popup mã bảo mật
 
     window.addEventListener("DOMContentLoaded", () => {
       initDeviceId();
@@ -614,6 +603,31 @@
       }
     }
 
+    // --- TAB QUẢN LÝ: THAY ĐỔI CHƯƠNG TRÌNH & YÊU CẦU MÃ BẢO MẬT ---
+    function onMgrSchoolSelectChange(schoolName) {
+      if (!schoolName) {
+        stopQrScanner();
+        return;
+      }
+      onSchoolChange('mgr', schoolName);
+      checkAndUnlockManagerTab(schoolName);
+    }
+
+    function checkAndUnlockManagerTab(schoolName) {
+      if (!schoolName) return;
+      if (unlockedSchoolPins[schoolName]) {
+        // Đã mở khóa trước đó: tự động bật Camera luôn!
+        startQrScannerAuto(schoolName, unlockedSchoolPins[schoolName]);
+      } else {
+        // Hiện popup "Điền mã số bảo mật chương trình"
+        stopQrScanner();
+        pinAuthTargetTab = "quanly";
+        document.getElementById("programAuthPinInput").value = "";
+        document.getElementById("programAuthPinError").classList.add("hidden");
+        document.getElementById("programPinAuthModal").classList.remove("hidden");
+      }
+    }
+
     function switchTab(tabId) {
       ["diemdanh", "danhsach", "quanly", "quantri"].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add("hidden");
@@ -631,6 +645,15 @@
 
       if (tabId === "danhsach") {
         syncAndLoadPersonnel();
+      } else if (tabId === "quanly") {
+        document.getElementById("floatingSaveBar").classList.add("hidden");
+        const mgrVal = document.getElementById("mgrSchoolSelect").value;
+        const ctvVal = document.getElementById("ctvSchoolSelect").value;
+        const targetSchool = mgrVal || ctvVal;
+        if (targetSchool) {
+          document.getElementById("mgrSchoolSelect").value = targetSchool;
+          checkAndUnlockManagerTab(targetSchool);
+        }
       } else {
         document.getElementById("floatingSaveBar").classList.add("hidden");
       }
@@ -655,7 +678,6 @@
 
     function onPersonnelSchoolChange(schoolName) {
       if (!schoolName) return;
-      // Khi chọn xong tên chương trình: Hiện popup hỏi Bạn là CTV hay Quản lý
       if (!currentPersonnelRole) {
         document.getElementById("roleSelectModal").classList.remove("hidden");
       } else {
@@ -677,9 +699,10 @@
           updateRoleBadge();
           loadPersonnelList(schoolName);
         } else {
-          document.getElementById("mgrAuthPinInput").value = "";
-          document.getElementById("mgrAuthPinError").classList.add("hidden");
-          document.getElementById("managerPinAuthModal").classList.remove("hidden");
+          pinAuthTargetTab = "danhsach";
+          document.getElementById("programAuthPinInput").value = "";
+          document.getElementById("programAuthPinError").classList.add("hidden");
+          document.getElementById("programPinAuthModal").classList.remove("hidden");
         }
       }
     }
@@ -695,21 +718,28 @@
       }
     }
 
-    function cancelManagerPinAuth() {
-      document.getElementById("managerPinAuthModal").classList.add("hidden");
-      currentPersonnelRole = "ctv";
-      updateRoleBadge();
-      const schoolName = document.getElementById("personnelSchoolSelect").value;
-      loadPersonnelList(schoolName);
+    function cancelProgramPinAuth() {
+      document.getElementById("programPinAuthModal").classList.add("hidden");
+      if (pinAuthTargetTab === "danhsach") {
+        currentPersonnelRole = "ctv";
+        updateRoleBadge();
+        const schoolName = document.getElementById("personnelSchoolSelect").value;
+        loadPersonnelList(schoolName);
+      } else if (pinAuthTargetTab === "quanly") {
+        stopQrScanner();
+      }
     }
 
-    async function confirmManagerPinAuth() {
-      const schoolName = document.getElementById("personnelSchoolSelect").value;
-      const pin = document.getElementById("mgrAuthPinInput").value.trim();
-      const errBox = document.getElementById("mgrAuthPinError");
+    async function confirmProgramPinAuth() {
+      const targetSchool = (pinAuthTargetTab === "quanly")
+        ? document.getElementById("mgrSchoolSelect").value
+        : document.getElementById("personnelSchoolSelect").value;
+
+      const pin = document.getElementById("programAuthPinInput").value.trim();
+      const errBox = document.getElementById("programAuthPinError");
 
       if (!pin) {
-        errBox.innerText = "Vui lòng nhập mã PIN bảo mật!";
+        errBox.innerText = "Vui lòng nhập mã bảo mật chương trình!";
         errBox.classList.remove("hidden");
         return;
       }
@@ -721,20 +751,26 @@
           method: "POST",
           body: JSON.stringify({
             action: "verifySchoolPin",
-            schoolName: schoolName,
+            schoolName: targetSchool,
             pin: pin
           })
         });
         const data = await res.json();
 
         if (data.success) {
-          unlockedSchoolPins[schoolName] = pin;
-          currentPersonnelRole = "manager";
-          updateRoleBadge();
-          document.getElementById("managerPinAuthModal").classList.add("hidden");
-          loadPersonnelList(schoolName);
+          unlockedSchoolPins[targetSchool] = pin;
+          document.getElementById("programPinAuthModal").classList.add("hidden");
+
+          if (pinAuthTargetTab === "danhsach") {
+            currentPersonnelRole = "manager";
+            updateRoleBadge();
+            loadPersonnelList(targetSchool);
+          } else if (pinAuthTargetTab === "quanly") {
+            // TỰ ĐỘNG BẬT CAMERA QUÉT KHI NHẬP ĐÚNG MÃ!
+            startQrScannerAuto(targetSchool, pin);
+          }
         } else {
-          errBox.innerText = data.message || "Mã bảo mật không đúng!";
+          errBox.innerText = data.message || "Mã bảo mật chương trình không chính xác!";
           errBox.classList.remove("hidden");
         }
       } catch (err) {
@@ -749,7 +785,7 @@
       else alert("Vui lòng chọn chương trình!");
     }
 
-    // --- CHỈ TẢI CÁC CHƯƠNG TRÌNH ĐANG DIỄN RA HÔM NAY[cite: 29] ---
+    // --- CHỈ TẢI CÁC CHƯƠNG TRÌNH ĐANG DIỄN RA HÔM NAY ---
     async function loadPrograms() {
       const ctvSelect = document.getElementById("ctvSchoolSelect");
       const mgrSelect = document.getElementById("mgrSchoolSelect");
@@ -805,7 +841,7 @@
       if (personnelSelect) personnelSelect.innerHTML = optionsHtml;
     }
 
-    // --- TẢI DỮ LIỆU TỪ MÁY CHỦ ---
+    // --- TẢI BẢNG DANH SÁCH NHÂN SỰ TỪ FILE PHÂN CÔNG ---
     async function loadPersonnelList(schoolName) {
       if (!schoolName) return;
 
@@ -839,7 +875,6 @@
         badge.innerText = `📁 File tìm thấy: ${data.fileName}`;
         badge.classList.remove("hidden");
 
-        // Thống kê 5 chỉ số[cite: 33]
         let inCount = 0, outCount = 0, photoCount = 0, extraCount = 0;
         rawPersonnelList.forEach(p => {
           if (p.status === "Đã đến") inCount++;
@@ -864,7 +899,6 @@
 
     let availableTeamsGlobal = [];
 
-    // --- HỖ TRỢ SẮP XẾP VÀ TRÍCH XUẤT SỐ LỚP ---
     function extractClassNum(val) {
       if (!val) return 99999;
       const match = String(val).match(/\d+/);
@@ -921,13 +955,11 @@
           return vB.localeCompare(vA);
         });
       } else {
-        // default STT
         list.sort((a, b) => a.stt - b.stt);
       }
       return list;
     }
 
-    // --- TÍNH TOÁN TRÙNG LẶP CHO CA 1 & CA 2 ---
     function calculateDuplicateMap(key) {
       const counts = {};
       rawPersonnelList.forEach(p => {
@@ -939,7 +971,7 @@
       return counts;
     }
 
-    // --- VẼ BẢNG GIAO DIỆN (CỐ ĐỊNH STT VÀ HỌ TÊN, TỰ ĐỘNG BÔI MÀU TRÙNG LẶP)[cite: 31, 34] ---
+    // --- VẼ BẢNG GIAO DIỆN SIÊU GỌN KHÍT 100% (STICKY STT & HỌ TÊN)[cite: 31, 34] ---
     function renderPersonnelTable() {
       const container = document.getElementById("personnelTableContainer");
       const list = getSortedPersonnelList();
@@ -989,7 +1021,7 @@
           checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-amber-100 text-amber-700">Thiếu</span>`;
         }
 
-        // Ảnh: đặt ngay sau cột Check (✔ xanh / ✖ đỏ)
+        // Ảnh: sau cột Check (✔ xanh / ✖ đỏ)
         let photoBadge = "";
         if (person.hasPhoto) {
           photoBadge = `<a href="${person.photoUrl}" target="_blank" title="Xem ảnh check-in" class="text-emerald-600 font-black text-xs hover:underline">✔</a>`;
@@ -997,7 +1029,7 @@
           photoBadge = `<span title="Chưa có ảnh" class="text-rose-500 font-black text-[10px]">✖</span>`;
         }
 
-        // Nút Sao (★): Viền xám mờ khi chưa chọn, vàng rực khi chọn
+        // Nút Sao (★): Viền mờ khi chưa chọn, vàng rực khi chọn
         const isGood = (person.rating === "good");
         const starIconHtml = isGood 
           ? `<i class="ph-fill ph-star text-amber-400 text-base"></i>`
@@ -1060,7 +1092,7 @@
           ca2Html = `<span style="${bgStyle2}" class="px-1 py-0.5 rounded text-[10px] block">${person.ca2 || '-'}</span>`;
         }
 
-        // Cột SĐT chỉ hiện hình điện thoại 📞, không hiện số
+        // Cột SĐT chỉ hiển thị hình cái điện thoại 📞, không hiện số
         const phoneCell = person.sdt 
           ? `<a href="tel:${person.sdt}" title="Gọi ${person.sdt}" class="inline-flex items-center justify-center text-indigo-600 hover:text-indigo-800 text-sm">
                <i class="ph ph-phone-call"></i>
@@ -1090,18 +1122,17 @@
       container.innerHTML = tableHtml;
     }
 
-    // --- TOGGLE ĐÁNH DẤU SAO / CẤM (ĐỔI GIAO DIỆN TỨC THÌ 0MS - KHÔNG XOAY TẢI) ---
+    // --- TOGGLE ĐÁNH DẤU SAO / CẤM (ĐỔI GIAO DIỆN TỨC THÌ 0MS - KHÔNG TẢI LẠI) ---
     function toggleRating(maCTV, type) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
 
       if (person.rating === type) {
-        person.rating = null; // Bỏ đánh dấu
+        person.rating = null;
       } else {
-        person.rating = type; // Gán 'good' hoặc 'banned'
+        person.rating = type;
       }
 
-      // CẬP NHẬT TRỰC TIẾP ICON TRÊN GIAO DIỆN (KHÔNG GỌI LẠI LOAD DANH SÁCH)
       const rowEl = document.getElementById(`row_${maCTV}`);
       if (rowEl) {
         const starBtn = rowEl.querySelector(".star-btn");
@@ -1118,7 +1149,6 @@
         }
       }
 
-      // Ghi nhận thay đổi để hiện nút Lưu thay đổi nổi
       if (!person.isExtra) {
         const sel = document.getElementById(`teamSel_${maCTV}`);
         changedOldStaff[maCTV] = {
@@ -1132,7 +1162,7 @@
       }
     }
 
-    // --- XỬ LÝ CHỌN ĐỘI CHO NGƯỜI BỔ SUNG VS NGƯỜI CŨ[cite: 32] ---
+    // --- XỬ LÝ CHỌN ĐỘI CHO NGƯỜI BỔ SUNG VS NGƯỜI CŨ ---
     function handleTeamChange(maCTV) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
@@ -1141,7 +1171,6 @@
       const newTeam = sel.value;
 
       if (person.isExtra) {
-        // NGƯỜI BỔ SUNG: Bật cửa sổ che 1 phần màn hình xác nhận[cite: 32]
         if (!newTeam) return;
         pendingExtraPerson = {
           maCTV: person.maCTV,
@@ -1159,7 +1188,6 @@
         document.getElementById("extraConfirmModal").classList.remove("hidden");
 
       } else {
-        // NGƯỜI CŨ: Ghi nhận và hiển thị thanh nút nổi trượt theo bảng
         person.team = newTeam;
         changedOldStaff[maCTV] = {
           rowNumber: person.rowNumber,
@@ -1172,7 +1200,6 @@
       }
     }
 
-    // --- CẬP NHẬT CA 1 & CA 2 VÀ CẬP NHẬT MÀU TRÙNG LẶP THỜI GIAN THỰC ---
     function handleCaInput(maCTV, caIndex, val) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
@@ -1188,8 +1215,6 @@
         rating: person.rating
       };
       updateFloatingSaveBar();
-
-      // Cập nhật lại màu sắc trùng lặp cho toàn bộ cột tương ứng
       refreshDuplicateHighlightStyles(caIndex === 1 ? "ca1" : "ca2");
     }
 
@@ -1233,7 +1258,6 @@
       }
     }
 
-    // --- THAO TÁC NGƯỜI BỔ SUNG: ĐỒNG Ý / BỎ QUA ---
     function cancelExtraStaff() {
       if (pendingExtraPerson) {
         const sel = document.getElementById(`teamSel_${pendingExtraPerson.maCTV}`);
@@ -1282,7 +1306,7 @@
       }
     }
 
-    // --- THAO TÁC LƯU THAY ĐỔI NGƯỜI CŨ (DÙNG MÃ PIN TRƯỜNG ĐÃ XÁC THỰC) ---
+    // --- LƯU THAY ĐỔI PHÂN CÔNG NGƯỜI CŨ (DÙNG MÃ PIN TRƯỜNG ĐÃ LƯU) ---
     async function saveAllAssignments() {
       const assignmentsList = Object.values(changedOldStaff);
       if (assignmentsList.length === 0) return alert("Không có thay đổi nào!");
@@ -1314,7 +1338,7 @@
           alert("Lỗi: " + data.message);
         }
       } catch (e) {
-        alert("Lỗi khi lưu: " + e.message);
+        alert("Lỗi khi lưu phân công: " + e.message);
       }
     }
 
@@ -1597,7 +1621,7 @@
       }
     }
 
-    // --- TAB QUẢN LÝ: CAMERA QUÉT PHẦN CỨNG ---
+    // --- TAB QUẢN LÝ: TỰ ĐỘNG BẬT CAMERA KHI NHẬP ĐÚNG MÃ BẢO MẬT ---
     function setScanMode(mode) {
       selectedScanMode = mode;
       const badge = document.getElementById("scanModeBadge");
@@ -1617,17 +1641,13 @@
       }
     }
 
-    async function startQrScanner() {
-      const school = document.getElementById("mgrSchoolSelect").value;
-      const pin = document.getElementById("mgrSchoolPin").value.trim();
+    async function startQrScannerAuto(schoolName, pin) {
+      if (!schoolName || !pin) return;
 
-      if (!school) return alert("Vui lòng chọn trường trước khi quét!");
-      if (!pin) return alert("Bắt buộc phải nhập Mã bảo mật của trường để kích hoạt máy quét!");
-
-      document.getElementById("mgrSchoolSelect").disabled = true;
-      document.getElementById("mgrSchoolPin").disabled = true;
-      document.getElementById("btnStartScanner").disabled = true;
-      document.getElementById("btnStopScanner").disabled = false;
+      if (html5QrScanner) {
+        try { await html5QrScanner.stop(); html5QrScanner.clear(); } catch(e){}
+        html5QrScanner = null;
+      }
 
       html5QrScanner = new Html5Qrcode("reader", {
         experimentalFeatures: { useBarCodeDetectorIfSupported: true },
@@ -1646,8 +1666,7 @@
       try {
         await html5QrScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
       } catch (err) {
-        alert("Không thể khởi động camera sau: " + err);
-        stopQrScanner();
+        document.getElementById("reader").innerHTML = `<span class="text-rose-500 p-4 text-center">Không thể mở camera quét: ${err}</span>`;
       }
     }
 
@@ -1659,11 +1678,8 @@
         } catch (e) {}
         html5QrScanner = null;
       }
-      document.getElementById("mgrSchoolSelect").disabled = false;
-      document.getElementById("mgrSchoolPin").disabled = false;
-      document.getElementById("btnStartScanner").disabled = false;
-      document.getElementById("btnStopScanner").disabled = true;
-      document.getElementById("reader").innerHTML = `<span class="text-slate-400">Camera đã đóng.</span>`;
+      const readerEl = document.getElementById("reader");
+      if (readerEl) readerEl.innerHTML = `<span class="text-slate-400">Chọn chương trình và nhập mã để bật Camera</span>`;
     }
 
     async function onScanSuccess(decodedText) {
@@ -1683,7 +1699,7 @@
       }
 
       const school = document.getElementById("mgrSchoolSelect").value;
-      const pin = document.getElementById("mgrSchoolPin").value.trim();
+      const pin = unlockedSchoolPins[school] || "";
 
       try {
         const res = await fetch(SCRIPT_URL, {
