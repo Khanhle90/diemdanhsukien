@@ -90,7 +90,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL BẢO MẬT CHƯƠNG TRÌNH (CHO TAB QUẢN LÝ VÀ TAB DANH SÁCH) ================= -->
+  <!-- ================= MODAL BẢO MẬT CHƯƠNG TRÌNH ================= -->
   <div id="programPinAuthModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
       <div class="flex items-center space-x-2 text-blue-700 font-bold border-b pb-2">
@@ -142,7 +142,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL ĐỔI TÀI KHOẢN (ĐÃ ĐIỀU CHỈNH NỘI DUNG THÔNG BÁO) ================= -->
+  <!-- ================= MODAL ĐỔI TÀI KHOẢN ================= -->
   <div id="switchModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
       <div class="flex items-center space-x-2 text-indigo-700 font-bold border-b pb-2">
@@ -172,7 +172,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL ĐĂNG NHẬP (2-FA & TÍNH NĂNG FORM ĐĂNG KÝ SĐT MỚI) ================= -->
+  <!-- ================= MODAL ĐĂNG NHẬP (2-FA & FORM ĐĂNG KÝ SĐT) ================= -->
   <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl max-h-[95vh] overflow-y-auto custom-scroll">
       <div class="text-center mb-3">
@@ -196,7 +196,7 @@
         </div>
         <div id="lookupStatus" class="text-[11px] font-medium hidden"></div>
 
-        <!-- KHỐI HƯỚNG DẪN FORM ĐĂNG KÝ KHI SĐT CHƯA CÓ -->
+        <!-- FORM ĐĂNG KÝ SĐT MỚI -->
         <div class="pt-2 border-t border-indigo-200/60 text-[11px] text-slate-600 space-y-1.5 leading-snug">
           <p>Nếu SĐT bạn chưa được đăng ký, hãy điền đầy đủ form thông tin sau trước khi đăng nhập:</p>
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSc9aqh4aoGr5kzOTt0VxEWL8bZPDa9ByULx-dfMKBglZVSPFw/viewform?usp=sharing&ouid=118385751083342568492" target="_blank" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 px-3 rounded-lg font-bold flex items-center justify-center space-x-1 shadow-sm text-xs">
@@ -396,7 +396,7 @@
       </div>
     </section>
 
-    <!-- ================= TAB 3: QUẢN LÝ HIỆN TRƯỜNG (TỰ ĐỘNG BẬT CAMERA QUÉT KHI NHẬP ĐÚNG MÃ) ================= -->
+    <!-- ================= TAB 3: QUẢN LÝ HIỆN TRƯỜNG ================= -->
     <section id="tab-quanly" class="space-y-4 hidden">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Cấu hình ca làm việc hiện trường</h3>
@@ -442,7 +442,7 @@
           <span>Xác Thực Quản Trị Viên</span>
         </div>
         <div class="space-y-3">
-          <p class="text-xs text-slate-500">Mật khẩu được đồng bộ trực tiếp tại ô <b>D1</b> trên Google Sheets[cite: 1].</p>
+          <p class="text-xs text-slate-500">Mật khẩu được đồng bộ trực tiếp tại ô <b>D1</b> trên Google Sheets.</p>
           <input type="password" id="adminPasswordInput" placeholder="Nhập mật khẩu Admin" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300">
           <button onclick="verifyAdminPassword()" class="w-full bg-indigo-600 text-white text-xs py-2.5 rounded-lg font-bold">Truy Cập Quản Trị</button>
         </div>
@@ -541,7 +541,7 @@
   <!-- ================= JAVASCRIPT ================= -->
   <script>
     /**
-     * DÁN LINK WEB APP CỦA BẠN VÀO ĐÂY:
+     * LINK WEB APP CHÍNH THỨC CỦA BẠN ĐÃ ĐƯỢC ĐIỀN TRỰC TIẾP TẠI ĐÂY:
      */
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySYCvcT5YlGk_7aPKqUQYeYmko93k7Bby9bvnuKoNNkieQeKwQ8OQEtYllNlgYHsKFZw/exec";
     const IMGBB_API_KEY = "9b4a10db15d694a88f3aa0d1ffbc0669";
@@ -560,10 +560,25 @@
     let changedOldStaff = {};
     let pendingExtraPerson = null;
 
-    let currentPersonnelRole = null; // 'ctv' hoặc 'manager'
-    let unlockedSchoolPins = {}; // Ghi nhớ mã PIN theo từng trường
+    let currentPersonnelRole = null;
+    let unlockedSchoolPins = {};
     let currentSortMode = "default";
     let pinAuthTargetTab = "danhsach";
+
+    // --- HÀM BỎ DẤU TIẾNG VIỆT (TRÁNH LỖI FRONTEND) ---
+    function removeVietnameseTones(str) {
+      str = String(str || "");
+      str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      str = str.replace(/đ/g, "d").replace(/Đ/g, "D");
+      return str;
+    }
+
+    // --- KIỂM TRA VỊ TRÍ ĐỘI TRƯỞNG / LEADER / MC ĐỂ BÔI MÀU & BỎ QUA KHỎI MENU CHỌN ---
+    function isKeyLeaderOrMC(teamName) {
+      if (!teamName) return false;
+      const clean = removeVietnameseTones(teamName).toLowerCase();
+      return clean.includes("doi truong") || clean.includes("leader") || clean.includes("mc");
+    }
 
     window.addEventListener("DOMContentLoaded", () => {
       initDeviceId();
@@ -619,7 +634,6 @@
       }
     }
 
-    // --- TAB QUẢN LÝ: THAY ĐỔI CHƯƠNG TRÌNH & YÊU CẦU MÃ BẢO MẬT ---
     function onMgrSchoolSelectChange(schoolName) {
       if (!schoolName) {
         stopQrScanner();
@@ -632,10 +646,8 @@
     function checkAndUnlockManagerTab(schoolName) {
       if (!schoolName) return;
       if (unlockedSchoolPins[schoolName]) {
-        // ĐÃ MỞ KHÓA: TỰ ĐỘNG BẬT CAMERA NGAY LẬP TỨC
         startQrScannerAuto(schoolName, unlockedSchoolPins[schoolName]);
       } else {
-        // HIỆN CỬA SỔ ĐIỀN MÃ BẢO MẬT CHƯƠNG TRÌNH
         stopQrScanner();
         pinAuthTargetTab = "quanly";
         document.getElementById("programAuthPinInput").value = "";
@@ -782,7 +794,6 @@
             updateRoleBadge();
             loadPersonnelList(targetSchool);
           } else if (pinAuthTargetTab === "quanly") {
-            // TỰ ĐỘNG BẬT CAMERA QUÉT KHI NHẬP ĐÚNG MÃ!
             startQrScannerAuto(targetSchool, pin);
           }
         } else {
@@ -801,19 +812,10 @@
       else alert("Vui lòng chọn chương trình!");
     }
 
-    // --- CHỈ TẢI CÁC CHƯƠNG TRÌNH ĐANG DIỄN RA HÔM NAY ---
     async function loadPrograms() {
       const ctvSelect = document.getElementById("ctvSchoolSelect");
       const mgrSelect = document.getElementById("mgrSchoolSelect");
       const personnelSelect = document.getElementById("personnelSchoolSelect");
-
-      if (!SCRIPT_URL || SCRIPT_URL.includes("YOUR_ACTUAL_EXEC_ID_HERE")) {
-        const warnHtml = `<option value="">⚠️ CHƯA THAY LINK SCRIPT_URL VÀO INDEX.HTML</option>`;
-        if (ctvSelect) ctvSelect.innerHTML = warnHtml;
-        if (mgrSelect) mgrSelect.innerHTML = warnHtml;
-        if (personnelSelect) personnelSelect.innerHTML = warnHtml;
-        return;
-      }
 
       try {
         const res = await fetch(`${SCRIPT_URL}?action=getPrograms`);
@@ -857,7 +859,6 @@
       if (personnelSelect) personnelSelect.innerHTML = optionsHtml;
     }
 
-    // --- TẢI BẢNG DANH SÁCH NHÂN SỰ TỪ FILE PHÂN CÔNG ---
     async function loadPersonnelList(schoolName) {
       if (!schoolName) return;
 
@@ -1002,6 +1003,9 @@
       const ca1Counts = calculateDuplicateMap("ca1");
       const ca2Counts = calculateDuplicateMap("ca2");
 
+      // BỘ LỌC KÉP: LOẠI TRỪ HOÀN TOÀN CÁC DÒNG ĐỘI TRƯỞNG, LEADER, MC KHỎI MENU CHỌN
+      const cleanTeams = teams.filter(t => !isKeyLeaderOrMC(t));
+
       let tableHtml = `
         <table class="w-full text-left border-collapse text-[11px] table-fixed">
           <thead>
@@ -1024,10 +1028,25 @@
       list.forEach((person) => {
         const ma = person.maCTV;
         const isExtra = person.isExtra;
-        const stickyBg = isExtra ? "bg-amber-50" : "bg-white";
-        const rowBg = isExtra ? "bg-amber-50/90 font-medium border-l-2 border-amber-400" : "hover:bg-slate-50";
 
-        // Check: IN (xanh), OUT (đỏ), Thiếu (vàng)
+        const isMe = (currentUser && currentUser.maCTV && ma && 
+                      String(currentUser.maCTV).trim().toUpperCase() === String(ma).trim().toUpperCase());
+        const isLeaderMC = isKeyLeaderOrMC(person.team);
+
+        let stickyBg = "bg-white";
+        let rowBg = "hover:bg-slate-50";
+
+        if (isMe) {
+          stickyBg = "bg-amber-100";
+          rowBg = "bg-amber-100 text-slate-900 font-bold border-l-4 border-amber-500 shadow-sm";
+        } else if (isLeaderMC) {
+          stickyBg = "bg-blue-100";
+          rowBg = "bg-blue-100 text-blue-950 font-semibold border-l-4 border-blue-500";
+        } else if (isExtra) {
+          stickyBg = "bg-amber-50";
+          rowBg = "bg-amber-50/90 font-medium border-l-2 border-amber-400";
+        }
+
         let checkBadge = "";
         if (person.status === "Đã đến") {
           checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">IN</span>`;
@@ -1037,7 +1056,6 @@
           checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-amber-100 text-amber-700">Thiếu</span>`;
         }
 
-        // Ảnh: sau cột Check (✔ xanh / ✖ đỏ)
         let photoBadge = "";
         if (person.hasPhoto) {
           photoBadge = `<a href="${person.photoUrl}" target="_blank" title="Xem ảnh check-in" class="text-emerald-600 font-black text-xs hover:underline">✔</a>`;
@@ -1045,7 +1063,6 @@
           photoBadge = `<span title="Chưa có ảnh" class="text-rose-500 font-black text-[10px]">✖</span>`;
         }
 
-        // Nút Sao (★): Viền xám mờ khi chưa chọn, vàng rực khi chọn
         const isGood = (person.rating === "good");
         const starIconHtml = isGood 
           ? `<i class="ph-fill ph-star text-amber-400 text-base"></i>`
@@ -1054,7 +1071,6 @@
           ? `<button onclick="toggleRating('${ma}', 'good')" class="star-btn focus:outline-none hover:scale-110 transition-transform">${starIconHtml}</button>`
           : `<span class="star-btn opacity-60">${starIconHtml}</span>`;
 
-        // Nút Cấm (🚫): Mờ khi chưa chọn, đỏ tươi khi chọn
         const isBanned = (person.rating === "banned");
         const banIconHtml = isBanned 
           ? `<i class="ph-fill ph-prohibit text-red-600 text-base"></i>`
@@ -1063,15 +1079,16 @@
           ? `<button onclick="toggleRating('${ma}', 'banned')" class="ban-btn focus:outline-none hover:scale-110 transition-transform">${banIconHtml}</button>`
           : `<span class="ban-btn opacity-60">${banIconHtml}</span>`;
 
-        // Menu Vị trí / Đội
+        // MENU VỊ TRÍ CHỈ CHỨA CÁC ĐỘI HỢP LỆ (BỎ HẲN ĐỘI TRƯỞNG, LEADER, MC)
         let teamCell = "";
         if (isManager) {
           let teamOptions = `<option value="">--</option>`;
-          teams.forEach(t => {
+          cleanTeams.forEach(t => {
             const isSel = (person.team === t) ? "selected" : "";
             teamOptions += `<option value="${t}" ${isSel}>${t}</option>`;
           });
-          if (person.team && !teams.includes(person.team)) {
+          // Nếu chính người này đang giữ vị trí MC/Leader từ trước, chỉ hiển thị giá trị hiện tại của riêng họ
+          if (person.team && !cleanTeams.includes(person.team)) {
             teamOptions += `<option value="${person.team}" selected>${person.team}</option>`;
           }
           teamCell = `
@@ -1083,9 +1100,6 @@
           teamCell = `<span class="font-bold text-slate-700 truncate block text-[10px]">${person.team || '-'}</span>`;
         }
 
-        // Kiểm tra màu trùng lặp lớp Ca 1 & Ca 2:
-        // 2 lớp trùng -> nền vàng (#fef08a)
-        // >= 3 lớp trùng -> nền đỏ (#fecaca)
         const val1 = (person.ca1 || "").trim().toUpperCase();
         const cnt1 = ca1Counts[val1] || 0;
         let bgStyle1 = "background-color: transparent;";
@@ -1108,7 +1122,6 @@
           ca2Html = `<span style="${bgStyle2}" class="px-1 py-0.5 rounded text-[10px] block">${person.ca2 || '-'}</span>`;
         }
 
-        // Cột SĐT chỉ hiển thị hình điện thoại 📞
         const phoneCell = person.sdt 
           ? `<a href="tel:${person.sdt}" title="Gọi ${person.sdt}" class="inline-flex items-center justify-center text-indigo-600 hover:text-indigo-800 text-sm">
                <i class="ph ph-phone-call"></i>
@@ -1121,6 +1134,7 @@
             <td class="p-1 text-center font-bold text-slate-500 sticky left-0 z-10 ${stickyBg}">${person.stt}</td>
             <td class="p-1.5 font-bold text-slate-800 sticky left-[22px] z-10 ${stickyBg} whitespace-normal break-words leading-tight" title="${person.hoTen}">
               ${person.hoTen}
+              ${isMe ? '<span class="inline-block ml-1 text-[8px] bg-amber-500 text-white px-1 py-0.2 rounded font-black">Bạn</span>' : ''}
               ${isExtra ? '<span class="block text-[8px] text-amber-700 font-black">Bổ sung</span>' : ''}
             </td>
             <td class="p-0.5 text-center">${phoneCell}</td>
@@ -1138,7 +1152,6 @@
       container.innerHTML = tableHtml;
     }
 
-    // --- TOGGLE ĐÁNH DẤU SAO / CẤM (ĐỔI GIAO DIỆN TỨC THÌ 0MS - KHÔNG XOAY TẢI) ---
     function toggleRating(maCTV, type) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
@@ -1178,7 +1191,6 @@
       }
     }
 
-    // --- XỬ LÝ CHỌN ĐỘI CHO NGƯỜI BỔ SUNG VS NGƯỜI CŨ ---
     function handleTeamChange(maCTV) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
@@ -1213,6 +1225,7 @@
           rating: person.rating
         };
         updateFloatingSaveBar();
+        renderPersonnelTable();
       }
     }
 
@@ -1322,7 +1335,6 @@
       }
     }
 
-    // --- LƯU THAY ĐỔI PHÂN CÔNG NGƯỜI CŨ (DÙNG MÃ PIN TRƯỜNG ĐÃ LƯU) ---
     async function saveAllAssignments() {
       const assignmentsList = Object.values(changedOldStaff);
       if (assignmentsList.length === 0) return alert("Không có thay đổi nào!");
@@ -1496,7 +1508,7 @@
       }
     }
 
-    // --- TẠO MÃ QR ĐIỂM DANH (ĐÃ LOẠI BỎ CHUỖI TÊN TRƯỜNG DÀI -> HẠT TO, QUÉT TỨC THÌ < 0.1S)[cite: 1] ---
+    // --- TẠO MÃ QR ĐIỂM DANH (HẠT TO, BẮT NÉT NHANH < 0.1S) ---
     function generateCtvQR() {
       const school = document.getElementById("ctvSchoolSelect").value;
       if (!school) {
@@ -1520,7 +1532,6 @@
       container.innerHTML = "";
 
       const now = Date.now();
-      // BỎ tên trường ra khỏi QR: giảm 60% dung lượng payload, ô vuông to gấp đôi -> quét tức thì!
       const qrData = {
         maCTV: currentUser.maCTV,
         hoTen: currentUser.hoTen,
@@ -1537,7 +1548,7 @@
             text: unescape(encodeURIComponent(qrPayloadStr)),
             width: 200,
             height: 200,
-            correctLevel: QRCode.CorrectLevel.L // Level L tạo ô vuông to nhất
+            correctLevel: QRCode.CorrectLevel.L
           });
 
           setTimeout(() => {
@@ -1637,7 +1648,7 @@
       }
     }
 
-    // --- TAB QUẢN LÝ: CAMERA QUÉT PHẦN CỨNG SIÊU TỐC (< 0.1S) ---
+    // --- TAB QUẢN LÝ: CAMERA QUÉT PHẦN CỨNG SIÊU TỐC ---
     function setScanMode(mode) {
       selectedScanMode = mode;
       const badge = document.getElementById("scanModeBadge");
@@ -1665,7 +1676,6 @@
         html5QrScanner = null;
       }
 
-      // Khóa cứng duy nhất định dạng QR_CODE để tăng tốc độ phân tích gấp 5 lần
       html5QrScanner = new Html5Qrcode("reader", {
         formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
         experimentalFeatures: { useBarCodeDetectorIfSupported: true },
@@ -1771,7 +1781,6 @@
       }
     }
 
-    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH ---
     function showFullScreenAlert(config) {
       const modal = document.getElementById("fullScreenFeedbackModal");
       const card = document.getElementById("feedbackCard");
@@ -1816,7 +1825,6 @@
       if (html5QrScanner) html5QrScanner.resume();
     }
 
-    // --- ĐĂNG NHẬP & TRA CỨU SĐT ---
     async function handleLookupPhone() {
       const phone = document.getElementById("lookupPhoneInput").value.trim();
       const status = document.getElementById("lookupStatus");
@@ -1960,7 +1968,6 @@
       document.getElementById("loginModal").classList.remove("hidden");
     }
 
-    // --- TAB QUẢN TRỊ ---
     async function verifyAdminPassword() {
       const pass = document.getElementById("adminPasswordInput").value.trim();
       if (!pass) return alert("Vui lòng nhập mật khẩu!");
