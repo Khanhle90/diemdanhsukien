@@ -21,12 +21,12 @@
       width: 100% !important;
     }
     .custom-scroll::-webkit-scrollbar {
-      height: 4px;
-      width: 4px;
+      height: 3px;
+      width: 3px;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
       background: #cbd5e1;
-      border-radius: 4px;
+      border-radius: 3px;
     }
     #qrcodeBox canvas {
       display: none !important;
@@ -113,7 +113,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL XÁC NHẬN PHÂN CÔNG NHÂN SỰ BỔ SUNG (MẬT KHẨU ADMIN Ô D1) ================= -->
+  <!-- ================= MODAL XÁC NHẬN PHÂN CÔNG NHÂN SỰ BỔ SUNG (MẬT KHẨ ADMIN Ô D1) ================= -->
   <div id="extraConfirmModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
       <div class="flex items-center space-x-2 text-amber-600 font-bold border-b pb-2">
@@ -322,7 +322,7 @@
       </div>
     </section>
 
-    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ (VỊ TRÍ THỨ 2) ================= -->
+    <!-- ================= TAB 2: DANH SÁCH NHÂN SỰ ================= -->
     <section id="tab-danhsach" class="space-y-2.5 hidden">
       <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 space-y-2">
         <div class="flex justify-between items-center border-b pb-1.5">
@@ -386,11 +386,11 @@
         </div>
       </div>
 
-      <!-- BẢNG NHÂN SỰ TỐI ƯU GỌN KHÍT -->
+      <!-- BẢNG NHÂN SỰ VỪA KHÍT 100% CHIỀU RỘNG, HIỂN THỊ ĐỦ THÔNG TIN -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div id="personnelFileBadge" class="bg-indigo-50 px-2.5 py-1.5 text-[10px] font-bold text-indigo-700 border-b border-indigo-100 hidden truncate"></div>
         
-        <div id="personnelTableContainer" class="overflow-x-auto custom-scroll max-h-[60vh] overflow-y-auto">
+        <div id="personnelTableContainer" class="overflow-x-auto custom-scroll max-h-[66vh] overflow-y-auto">
           <p class="text-xs text-center text-slate-400 py-8">Chọn chương trình để tải danh sách nhân sự...</p>
         </div>
       </div>
@@ -541,7 +541,7 @@
   <!-- ================= JAVASCRIPT ================= -->
   <script>
     /**
-     * LINK WEB APP CHÍNH THỨC CỦA BẠN ĐÃ ĐƯỢC ĐIỀN TRỰC TIẾP TẠI ĐÂY:
+     * LINK WEB APP CHÍNH THỨC CỦA BẠN:
      */
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySYCvcT5YlGk_7aPKqUQYeYmko93k7Bby9bvnuKoNNkieQeKwQ8OQEtYllNlgYHsKFZw/exec";
     const IMGBB_API_KEY = "9b4a10db15d694a88f3aa0d1ffbc0669";
@@ -565,7 +565,7 @@
     let currentSortMode = "default";
     let pinAuthTargetTab = "danhsach";
 
-    // --- HÀM BỎ DẤU TIẾNG VIỆT (TRÁNH LỖI FRONTEND) ---
+    // --- HÀM BỎ DẤU TIẾNG VIỆT ---
     function removeVietnameseTones(str) {
       str = String(str || "");
       str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -573,7 +573,7 @@
       return str;
     }
 
-    // --- KIỂM TRA VỊ TRÍ ĐỘI TRƯỞNG / LEADER / MC ĐỂ BÔI MÀU & BỎ QUA KHỎI MENU CHỌN ---
+    // --- KIỂM TRA VỊ TRÍ ĐỘI TRƯỞNG / LEADER / MC ĐỂ BÔI MÀU & LOẠI TRỪ MENU CHỌN ---
     function isKeyLeaderOrMC(teamName) {
       if (!teamName) return false;
       const clean = removeVietnameseTones(teamName).toLowerCase();
@@ -988,7 +988,7 @@
       return counts;
     }
 
-    // --- VẼ BẢNG GIAO DIỆN SIÊU GỌN KHÍT 100% ---
+    // --- VẼ BẢNG GIAO DIỆN SIÊU GỌN KHÍT 100% CHIỀU RỘNG (1 MÀN HÌNH DUY NHẤT) ---
     function renderPersonnelTable() {
       const container = document.getElementById("personnelTableContainer");
       const list = getSortedPersonnelList();
@@ -1003,23 +1003,24 @@
       const ca1Counts = calculateDuplicateMap("ca1");
       const ca2Counts = calculateDuplicateMap("ca2");
 
-      // BỘ LỌC KÉP: LOẠI TRỪ HOÀN TOÀN CÁC DÒNG ĐỘI TRƯỞNG, LEADER, MC KHỎI MENU CHỌN
+      // BỘ LỌC: BỎ HOÀN TOÀN ĐỘI TRƯỞNG, LEADER, MC KHỎI MENU CHỌN
       const cleanTeams = teams.filter(t => !isKeyLeaderOrMC(t));
 
+      // BẢNG VỪA KHÍT 100% CHIỀU RỘNG, KHÔNG DÙNG W-MAX, MỌI CỘT ĐỀU THẤY TRỰC TIẾP
       let tableHtml = `
-        <table class="w-full text-left border-collapse text-[11px] table-fixed">
+        <table class="w-full text-left border-collapse text-[10.5px]">
           <thead>
             <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-              <th class="p-1 text-center w-[24px]">★</th>
-              <th class="p-1 text-center w-[22px] sticky left-0 z-20 bg-slate-100">STT</th>
-              <th class="p-1.5 sticky left-[22px] z-20 bg-slate-100 w-[110px] text-left">Họ và tên</th>
-              <th class="p-0.5 w-[24px] text-center">📞</th>
-              <th class="p-1 w-[66px] text-center">Vị trí</th>
-              <th class="p-0.5 w-[32px] text-center">Ca1</th>
-              <th class="p-0.5 w-[32px] text-center">Ca2</th>
-              <th class="p-0.5 w-[36px] text-center">Check</th>
-              <th class="p-0.5 w-[24px] text-center">Ảnh</th>
-              <th class="p-1 w-[24px] text-center">🚫</th>
+              <th class="p-0.5 text-center w-[18px]">★</th>
+              <th class="p-0.5 text-center w-[20px]">STT</th>
+              <th class="p-1 text-left">Họ và tên</th>
+              <th class="p-0.5 w-[20px] text-center">📞</th>
+              <th class="p-0.5 w-[56px] sm:w-[68px] text-center">Vị trí</th>
+              <th class="p-0.5 w-[36px] text-center">Ca1</th>
+              <th class="p-0.5 w-[36px] text-center">Ca2</th>
+              <th class="p-0.5 w-[30px] text-center">Check</th>
+              <th class="p-0.5 w-[18px] text-center">Ảnh</th>
+              <th class="p-0.5 w-[18px] text-center">🚫</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
@@ -1033,53 +1034,53 @@
                       String(currentUser.maCTV).trim().toUpperCase() === String(ma).trim().toUpperCase());
         const isLeaderMC = isKeyLeaderOrMC(person.team);
 
-        let stickyBg = "bg-white";
+        // NỀN MÀU THEO THỨ TỰ ƯU TIÊN
         let rowBg = "hover:bg-slate-50";
-
         if (isMe) {
-          stickyBg = "bg-amber-100";
           rowBg = "bg-amber-100 text-slate-900 font-bold border-l-4 border-amber-500 shadow-sm";
         } else if (isLeaderMC) {
-          stickyBg = "bg-blue-100";
           rowBg = "bg-blue-100 text-blue-950 font-semibold border-l-4 border-blue-500";
         } else if (isExtra) {
-          stickyBg = "bg-amber-50";
           rowBg = "bg-amber-50/90 font-medium border-l-2 border-amber-400";
         }
 
+        // Check: IN (xanh), OUT (đỏ), Thiếu (vàng)
         let checkBadge = "";
         if (person.status === "Đã đến") {
-          checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">IN</span>`;
+          checkBadge = `<span class="px-1 py-0.5 rounded text-[8.5px] font-black bg-emerald-100 text-emerald-800">IN</span>`;
         } else if (person.status === "Đã về") {
-          checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-rose-100 text-rose-800">OUT</span>`;
+          checkBadge = `<span class="px-1 py-0.5 rounded text-[8.5px] font-black bg-rose-100 text-rose-800">OUT</span>`;
         } else {
-          checkBadge = `<span class="px-1 py-0.5 rounded text-[9px] font-black bg-amber-100 text-amber-700">Thiếu</span>`;
+          checkBadge = `<span class="px-1 py-0.5 rounded text-[8.5px] font-black bg-amber-100 text-amber-700">Thiếu</span>`;
         }
 
+        // Cột Ảnh: ✔ xanh / ✖ đỏ
         let photoBadge = "";
         if (person.hasPhoto) {
           photoBadge = `<a href="${person.photoUrl}" target="_blank" title="Xem ảnh check-in" class="text-emerald-600 font-black text-xs hover:underline">✔</a>`;
         } else {
-          photoBadge = `<span title="Chưa có ảnh" class="text-rose-500 font-black text-[10px]">✖</span>`;
+          photoBadge = `<span title="Chưa có ảnh" class="text-rose-500 font-black text-[9px]">✖</span>`;
         }
 
+        // Nút Sao (★)
         const isGood = (person.rating === "good");
         const starIconHtml = isGood 
-          ? `<i class="ph-fill ph-star text-amber-400 text-base"></i>`
-          : `<i class="ph-bold ph-star text-slate-300 text-base"></i>`;
+          ? `<i class="ph-fill ph-star text-amber-400 text-sm"></i>`
+          : `<i class="ph-bold ph-star text-slate-300 text-sm"></i>`;
         const starBtnHtml = isManager 
           ? `<button onclick="toggleRating('${ma}', 'good')" class="star-btn focus:outline-none hover:scale-110 transition-transform">${starIconHtml}</button>`
           : `<span class="star-btn opacity-60">${starIconHtml}</span>`;
 
+        // Nút Cấm (🚫)
         const isBanned = (person.rating === "banned");
         const banIconHtml = isBanned 
-          ? `<i class="ph-fill ph-prohibit text-red-600 text-base"></i>`
-          : `<i class="ph-bold ph-prohibit text-slate-300 text-base"></i>`;
+          ? `<i class="ph-fill ph-prohibit text-red-600 text-sm"></i>`
+          : `<i class="ph-bold ph-prohibit text-slate-300 text-sm"></i>`;
         const banBtnHtml = isManager 
           ? `<button onclick="toggleRating('${ma}', 'banned')" class="ban-btn focus:outline-none hover:scale-110 transition-transform">${banIconHtml}</button>`
           : `<span class="ban-btn opacity-60">${banIconHtml}</span>`;
 
-        // MENU VỊ TRÍ CHỈ CHỨA CÁC ĐỘI HỢP LỆ (BỎ HẲN ĐỘI TRƯỞNG, LEADER, MC)
+        // Cột Vị trí: Hiển thị đầy đủ chữ
         let teamCell = "";
         if (isManager) {
           let teamOptions = `<option value="">--</option>`;
@@ -1087,63 +1088,65 @@
             const isSel = (person.team === t) ? "selected" : "";
             teamOptions += `<option value="${t}" ${isSel}>${t}</option>`;
           });
-          // Nếu chính người này đang giữ vị trí MC/Leader từ trước, chỉ hiển thị giá trị hiện tại của riêng họ
           if (person.team && !cleanTeams.includes(person.team)) {
             teamOptions += `<option value="${person.team}" selected>${person.team}</option>`;
           }
           teamCell = `
-            <select id="teamSel_${ma}" onchange="handleTeamChange('${ma}')" class="w-full p-0.5 text-[10px] border border-slate-300 rounded bg-white font-medium focus:ring-1 focus:ring-indigo-500 truncate">
+            <select id="teamSel_${ma}" onchange="handleTeamChange('${ma}')" class="w-full p-0.5 text-[9.5px] border border-slate-300 rounded bg-white font-medium focus:ring-1 focus:ring-indigo-500">
               ${teamOptions}
             </select>
           `;
         } else {
-          teamCell = `<span class="font-bold text-slate-700 truncate block text-[10px]">${person.team || '-'}</span>`;
+          teamCell = `<span class="font-bold text-slate-700 whitespace-normal break-words text-[9.5px] leading-tight block text-center">${person.team || '-'}</span>`;
         }
 
+        // Màu trùng lặp lớp Ca 1 & Ca 2: Trùng 2 (Vàng), Trùng >= 3 (Đỏ)
         const val1 = (person.ca1 || "").trim().toUpperCase();
         const cnt1 = ca1Counts[val1] || 0;
         let bgStyle1 = "background-color: transparent;";
-        if (cnt1 === 2) bgStyle1 = "background-color: #fef08a; color: #854d0e; font-weight: bold; border-color: #facc15;";
-        else if (cnt1 >= 3) bgStyle1 = "background-color: #fecaca; color: #991b1b; font-weight: bold; border-color: #f87171;";
+        if (cnt1 === 2) bgStyle1 = "background-color: #fef08a; color: #854d0e; font-weight: bold; border: 1px solid #facc15;";
+        else if (cnt1 >= 3) bgStyle1 = "background-color: #fecaca; color: #991b1b; font-weight: bold; border: 1px solid #f87171;";
 
         const val2 = (person.ca2 || "").trim().toUpperCase();
         const cnt2 = ca2Counts[val2] || 0;
         let bgStyle2 = "background-color: transparent;";
         if (cnt2 === 2) bgStyle2 = "background-color: #fef08a; color: #854d0e; font-weight: bold; border-color: #facc15;";
-        else if (cnt2 >= 3) bgStyle2 = "background-color: #fecaca; color: #991b1b; font-weight: bold; border-color: #f87171;";
+        else if (cnt2 >= 3) bgStyle2 = "background-color: #fecaca; color: #991b1b; font-weight: bold; border: 1px solid #f87171;";
 
+        // Cột Ca1 & Ca2: Vừa vặn, hiển thị đủ mọi chữ dài (GAME, 5H, BÁNH...)
         let ca1Html = person.ca1 || "-";
         let ca2Html = person.ca2 || "-";
         if (isManager && !isExtra) {
-          ca1Html = `<input type="text" id="ca1_${ma}" value="${person.ca1 || ''}" oninput="handleCaInput('${ma}', 1, this.value)" style="${bgStyle1}" class="w-full text-center p-0 text-[10px] border border-slate-200 rounded focus:border-indigo-500">`;
-          ca2Html = `<input type="text" id="ca2_${ma}" value="${person.ca2 || ''}" oninput="handleCaInput('${ma}', 2, this.value)" style="${bgStyle2}" class="w-full text-center p-0 text-[10px] border border-slate-200 rounded focus:border-indigo-500">`;
+          ca1Html = `<input type="text" id="ca1_${ma}" value="${person.ca1 || ''}" oninput="handleCaInput('${ma}', 1, this.value)" style="${bgStyle1}" class="w-full text-center px-0.5 py-0.5 text-[9.5px] font-bold border border-slate-200 rounded focus:border-indigo-500">`;
+          ca2Html = `<input type="text" id="ca2_${ma}" value="${person.ca2 || ''}" oninput="handleCaInput('${ma}', 2, this.value)" style="${bgStyle2}" class="w-full text-center px-0.5 py-0.5 text-[9.5px] font-bold border border-slate-200 rounded focus:border-indigo-500">`;
         } else {
-          ca1Html = `<span style="${bgStyle1}" class="px-1 py-0.5 rounded text-[10px] block">${person.ca1 || '-'}</span>`;
-          ca2Html = `<span style="${bgStyle2}" class="px-1 py-0.5 rounded text-[10px] block">${person.ca2 || '-'}</span>`;
+          ca1Html = `<span style="${bgStyle1}" class="px-0.5 py-0.5 rounded text-[9.5px] font-bold whitespace-normal break-words inline-block text-center leading-tight w-full">${person.ca1 || '-'}</span>`;
+          ca2Html = `<span style="${bgStyle2}" class="px-0.5 py-0.5 rounded text-[9.5px] font-bold whitespace-normal break-words inline-block text-center leading-tight w-full">${person.ca2 || '-'}</span>`;
         }
 
+        // Cột SĐT: Biểu tượng 📞
         const phoneCell = person.sdt 
-          ? `<a href="tel:${person.sdt}" title="Gọi ${person.sdt}" class="inline-flex items-center justify-center text-indigo-600 hover:text-indigo-800 text-sm">
+          ? `<a href="tel:${person.sdt}" title="Gọi ${person.sdt}" class="inline-flex items-center justify-center text-indigo-600 hover:text-indigo-800 text-xs">
                <i class="ph ph-phone-call"></i>
              </a>`
           : `<span class="text-slate-300">-</span>`;
 
         tableHtml += `
           <tr id="row_${ma}" class="${rowBg}">
-            <td class="p-1 text-center">${starBtnHtml}</td>
-            <td class="p-1 text-center font-bold text-slate-500 sticky left-0 z-10 ${stickyBg}">${person.stt}</td>
-            <td class="p-1.5 font-bold text-slate-800 sticky left-[22px] z-10 ${stickyBg} whitespace-normal break-words leading-tight" title="${person.hoTen}">
+            <td class="p-0.5 text-center">${starBtnHtml}</td>
+            <td class="p-0.5 text-center font-bold text-slate-500 text-[10px]">${person.stt}</td>
+            <td class="p-1 font-bold text-slate-800 whitespace-normal break-words leading-tight" title="${person.hoTen}">
               ${person.hoTen}
-              ${isMe ? '<span class="inline-block ml-1 text-[8px] bg-amber-500 text-white px-1 py-0.2 rounded font-black">Bạn</span>' : ''}
-              ${isExtra ? '<span class="block text-[8px] text-amber-700 font-black">Bổ sung</span>' : ''}
+              ${isMe ? '<span class="inline-block ml-1 text-[7.5px] bg-amber-500 text-white px-1 rounded font-black">Bạn</span>' : ''}
+              ${isExtra ? '<span class="block text-[7.5px] text-amber-700 font-black">Bổ sung</span>' : ''}
             </td>
             <td class="p-0.5 text-center">${phoneCell}</td>
-            <td class="p-1">${teamCell}</td>
+            <td class="p-0.5 text-center">${teamCell}</td>
             <td class="p-0.5 text-center">${ca1Html}</td>
             <td class="p-0.5 text-center">${ca2Html}</td>
             <td class="p-0.5 text-center">${checkBadge}</td>
             <td class="p-0.5 text-center">${photoBadge}</td>
-            <td class="p-1 text-center">${banBtnHtml}</td>
+            <td class="p-0.5 text-center">${banBtnHtml}</td>
           </tr>
         `;
       });
@@ -1152,6 +1155,7 @@
       container.innerHTML = tableHtml;
     }
 
+    // --- TOGGLE ĐÁNH DẤU SAO / CẤM ---
     function toggleRating(maCTV, type) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
@@ -1168,13 +1172,13 @@
         const banBtn = rowEl.querySelector(".ban-btn");
         if (starBtn) {
           starBtn.innerHTML = (person.rating === "good")
-            ? `<i class="ph-fill ph-star text-amber-400 text-base"></i>`
-            : `<i class="ph-bold ph-star text-slate-300 text-base"></i>`;
+            ? `<i class="ph-fill ph-star text-amber-400 text-sm"></i>`
+            : `<i class="ph-bold ph-star text-slate-300 text-sm"></i>`;
         }
         if (banBtn) {
           banBtn.innerHTML = (person.rating === "banned")
-            ? `<i class="ph-fill ph-prohibit text-red-600 text-base"></i>`
-            : `<i class="ph-bold ph-prohibit text-slate-300 text-base"></i>`;
+            ? `<i class="ph-fill ph-prohibit text-red-600 text-sm"></i>`
+            : `<i class="ph-bold ph-prohibit text-slate-300 text-sm"></i>`;
         }
       }
 
@@ -1191,6 +1195,7 @@
       }
     }
 
+    // --- XỬ LÝ CHỌN ĐỘI ---
     function handleTeamChange(maCTV) {
       const person = rawPersonnelList.find(p => p.maCTV === maCTV);
       if (!person) return;
@@ -1781,6 +1786,7 @@
       }
     }
 
+    // --- HIỂN THỊ CỬA SỔ TOÀN MÀN HÌNH ---
     function showFullScreenAlert(config) {
       const modal = document.getElementById("fullScreenFeedbackModal");
       const card = document.getElementById("feedbackCard");
@@ -1825,6 +1831,7 @@
       if (html5QrScanner) html5QrScanner.resume();
     }
 
+    // --- ĐĂNG NHẬP & TRA CỨU SĐT ---
     async function handleLookupPhone() {
       const phone = document.getElementById("lookupPhoneInput").value.trim();
       const status = document.getElementById("lookupStatus");
@@ -1968,6 +1975,7 @@
       document.getElementById("loginModal").classList.remove("hidden");
     }
 
+    // --- TAB QUẢN TRỊ ---
     async function verifyAdminPassword() {
       const pass = document.getElementById("adminPasswordInput").value.trim();
       if (!pass) return alert("Vui lòng nhập mật khẩu!");
