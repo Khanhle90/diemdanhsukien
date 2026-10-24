@@ -2084,6 +2084,7 @@
     async function handleLoginSubmit() {
       const maCTV = document.getElementById("loginMaCTV").value.trim();
       const hoTen = document.getElementById("loginHoTen").value.trim();
+      const phoneInput = document.getElementById("lookupPhoneInput").value.trim();
       const errBox = document.getElementById("loginError");
       const btn = document.getElementById("btnLoginSubmit");
 
@@ -2100,12 +2101,16 @@
       try {
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
-          body: JSON.stringify({ action: "verifyUser", maCTV, hoTen })
+          body: JSON.stringify({ action: "verifyUser", maCTV, hoTen, sdt: phoneInput })
         });
         const data = await res.json();
 
         if (data.success) {
           currentUser = data.user;
+          // Đảm bảo SĐT luôn có giá trị từ kết quả server hoặc ô nhập
+          if (!currentUser.sdt && phoneInput) {
+            currentUser.sdt = phoneInput;
+          }
           if (!data.bypass) {
             localStorage.setItem("aba_user_profile", JSON.stringify(currentUser));
           }
