@@ -1026,18 +1026,18 @@
 
       let tableHtml = `
         <table class="w-full text-left border-collapse text-[10.5px]">
-          <thead>
-            <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-              <th class="p-0.5 text-center w-[18px]">★</th>
-              <th class="p-0.5 text-center w-[20px]">STT</th>
-              <th class="p-1 text-left min-w-[85px]">Họ và tên</th>
-              <th class="p-0.5 w-[20px] text-center">📞</th>
-              <th class="p-0.5 w-[56px] sm:w-[66px] text-center">Vị trí</th>
-              <th class="p-0.5 w-[36px] text-center">Ca1</th>
-              <th class="p-0.5 w-[36px] text-center">Ca2</th>
-              <th class="p-0.5 w-[30px] text-center">Check</th>
-              <th class="p-0.5 w-[18px] text-center">Ảnh</th>
-              <th class="p-0.5 w-[18px] text-center">🚫</th>
+          <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+            <tr class="text-slate-700 font-bold border-b border-slate-200">
+              <th class="p-0.5 text-center w-[18px] bg-slate-100">★</th>
+              <th class="p-0.5 text-center w-[20px] bg-slate-100">STT</th>
+              <th class="p-1 text-left min-w-[85px] bg-slate-100">Họ và tên</th>
+              <th class="p-0.5 w-[20px] text-center bg-slate-100">📞</th>
+              <th class="p-0.5 w-[56px] sm:w-[66px] text-center bg-slate-100">Vị trí</th>
+              <th class="p-0.5 w-[36px] text-center bg-slate-100">Ca1</th>
+              <th class="p-0.5 w-[36px] text-center bg-slate-100">Ca2</th>
+              <th class="p-0.5 w-[30px] text-center bg-slate-100">Check</th>
+              <th class="p-0.5 w-[18px] text-center bg-slate-100">Ảnh</th>
+              <th class="p-0.5 w-[18px] text-center bg-slate-100">🚫</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
@@ -1549,6 +1549,7 @@
         maCTV: currentUser.maCTV,
         hoTen: currentUser.hoTen,
         sdt: currentUser.sdt,
+        school: school, // Bắt buộc gắn tên trường vào dữ liệu mã QR
         deviceId: localStorage.getItem("aba_device_id"),
         timestamp: now
       };
@@ -1711,11 +1712,12 @@
       });
 
       const config = {
-        fps: 25,
+        fps: 15, // Giảm từ 25 xuống 15 để CPU điện thoại không bị quá tải
         videoConstraints: {
           facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 640 }, // Hạ độ phân giải phân tích xuống 640x480 để đọc mã trong 0.05s
+          height: { ideal: 480 },
+          advanced: [{ focusMode: "continuous" }] // Tự động lấy nét liên tục giống app ngân hàng
         },
         qrbox: function(w, h) {
           const s = Math.floor(Math.min(w, h) * 0.85);
@@ -1743,8 +1745,41 @@
       if (readerEl) readerEl.innerHTML = `<span class="text-slate-400">Chọn chương trình và nhập mã để bật Camera</span>`;
     }
 
+    // Hàm phát tiếng bíp chuẩn như máy quét siêu thị / app chuyển tiền
+    function playScanBeep() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime); // Âm C6 thanh gọn
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    // Hàm phát tiếng bíp chuẩn như app ngân hàng
+    function playScanBeep() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
     async function onScanSuccess(decodedText) {
-      if (navigator.vibrate) navigator.vibrate(80);
+      if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+      playScanBeep();
       if (html5QrScanner) html5QrScanner.pause();
 
       let qrData;
@@ -1759,9 +1794,50 @@
         return;
       }
 
+      // Thông báo phản hồi tức thì
+      showFullScreenAlert({
+        statusType: "loading",
+        title: "ĐÃ NHẬN DIỆN MÃ",
+        subtitle: `Đang ghi nhận: ${qrData.hoTen || 'Nhân sự'}...`,
+        details: ["Đang đồng bộ dữ liệu với máy chủ Google Sheets..."]
+      });
+
+      // Kiểm tra hết hạn mã (65 giây)
+      const now = Date.now();
+      if (!qrData.timestamp || (now - qrData.timestamp > 65000)) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "MÃ QR ĐÃ HẾT HẠN",
+          subtitle: `${qrData.hoTen || 'Nhân sự'} (${qrData.maCTV || ''})`,
+          details: [
+            "Mã QR chỉ có hiệu lực trong vòng 60 giây!",
+            "Yêu cầu nhân sự tạo lại mã mới trên máy của mình."
+          ]
+        });
+        return;
+      }
+
+      // Kiểm tra phải cùng trường giữa CTV và Quản lý
       const school = document.getElementById("mgrSchoolSelect").value;
+      const qrSchoolClean = removeVietnameseTones(qrData.school || "").trim().toLowerCase();
+      const curSchoolClean = removeVietnameseTones(school || "").trim().toLowerCase();
+
+      if (!qrData.school || qrSchoolClean !== curSchoolClean) {
+        showFullScreenAlert({
+          statusType: "warning",
+          title: "KHÔNG CÙNG CHƯƠNG TRÌNH",
+          subtitle: `${qrData.hoTen || 'Nhân sự'} (${qrData.maCTV || ''})`,
+          details: [
+            `Mã tạo cho: "${qrData.school || 'Chưa rõ'}"`,
+            `Máy Quản lý đang quét: "${school}"`
+          ]
+        });
+        return;
+      }
+
       const pin = unlockedSchoolPins[school] || "";
 
+      // Gửi dữ liệu về máy chủ Apps Script
       try {
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
@@ -1818,7 +1894,12 @@
       const details = document.getElementById("feedbackDetailsBox");
       const guide = document.getElementById("feedbackTapGuide");
 
-      if (config.statusType === "checkin_success") {
+      if (config.statusType === "loading") {
+        card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-indigo-600 text-white border-indigo-400";
+        iconBox.innerHTML = `<i class="ph ph-spinner animate-spin text-7xl text-yellow-300"></i>`;
+        details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
+        guide.className = "text-xs font-semibold opacity-90 text-indigo-200";
+      } else if (config.statusType === "checkin_success") {
         card.className = "w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border-4 bg-emerald-600 text-white border-emerald-400";
         iconBox.innerHTML = `<i class="ph ph-check-circle text-7xl text-white"></i>`;
         details.className = "bg-white/20 rounded-2xl p-3 text-xs space-y-1 mb-4 backdrop-blur-md text-white";
