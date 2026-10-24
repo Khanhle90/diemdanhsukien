@@ -309,10 +309,10 @@
 
         <div class="pt-2 border-t space-y-2">
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="checkMyAttendance('checkin')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-bold border border-slate-300">
+            <button id="btnCheckMyIn" onclick="checkMyAttendance('checkin')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-bold border border-slate-300 disabled:opacity-50">
               Kiểm tra check in
             </button>
-            <button onclick="checkMyAttendance('checkout')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-bold border border-slate-300">
+            <button id="btnCheckMyOut" onclick="checkMyAttendance('checkout')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-bold border border-slate-300 disabled:opacity-50">
               Kiểm tra check out
             </button>
           </div>
@@ -343,7 +343,11 @@
             <option value="">-- Đang đồng bộ chương trình --</option>
           </select>
         </div>
-
+        <!-- Ô TÌM KIẾM NHÂN SỰ -->
+        <div class="relative flex items-center">
+          <i class="ph ph-magnifying-glass absolute left-2.5 text-slate-400 text-sm"></i>
+          <input type="text" id="personnelSearchInput" oninput="onSearchPersonnel(this.value)" placeholder="Tìm kiếm theo tên, SĐT hoặc mã CTV..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white font-medium">
+        </div>
         <!-- THANH CÔNG CỤ SẮP XẾP -->
         <div class="flex items-center justify-between gap-1.5 pt-0.5">
           <div class="flex items-center space-x-1 text-slate-600">
@@ -926,8 +930,25 @@
       renderPersonnelTable();
     }
 
+    let personnelSearchKeyword = "";
+    function onSearchPersonnel(val) {
+      personnelSearchKeyword = removeVietnameseTones(val.trim().toLowerCase());
+      renderPersonnelTable();
+    }
+
     function getSortedPersonnelList() {
-      const list = [...rawPersonnelList];
+      let list = [...rawPersonnelList];
+
+      // Lọc danh sách theo từ khóa tìm kiếm real-time
+      if (personnelSearchKeyword) {
+        list = list.filter(p => {
+          const name = removeVietnameseTones(String(p.hoTen || "").toLowerCase());
+          const phone = String(p.sdt || "");
+          const ma = String(p.maCTV || "").toLowerCase();
+          return name.includes(personnelSearchKeyword) || phone.includes(personnelSearchKeyword) || ma.includes(personnelSearchKeyword);
+        });
+      }
+
       if (currentSortMode === "team") {
         list.sort((a, b) => (a.team || "").localeCompare(b.team || ""));
       } else if (currentSortMode === "ca1_asc") {
@@ -1195,7 +1216,8 @@
           sdt: person.sdt,
           team: newTeam,
           timeIn: person.timeIn,
-          timeOut: person.timeOut
+          timeOut: person.timeOut,
+          rowNumber: person.rowNumber
         };
 
         document.getElementById("extraConfirmText").innerHTML = 
@@ -1288,6 +1310,7 @@
     async function confirmExtraStaff() {
       const adminPass = document.getElementById("extraAdminPassInput").value.trim();
       const errBox = document.getElementById("extraConfirmError");
+      const targetSchool = document.getElementById("personnelSchoolSelect").value;
 
       if (!adminPass) {
         errBox.innerText = "Vui lòng nhập mật khẩu Quản trị (ô D1)!";
@@ -1302,8 +1325,9 @@
           method: "POST",
           body: JSON.stringify({
             action: "assignExtraStaff",
-            adminPassword: adminPass,
+            adminPassword: adminPass, // Mật khẩu đối chiếu với ô D1 trên sheet QuanLyTruong
             fileId: currentProgramFileId,
+            schoolName: targetSchool,
             ...pendingExtraPerson
           })
         });
@@ -1582,6 +1606,7 @@
     }
 
     // --- KIỂM TRA ĐIỂM DANH ---
+    // --- KIỂM TRA ĐIỂM DANH ---
     async function checkMyAttendance(type) {
       const school = document.getElementById("ctvSchoolSelect").value;
       if (!school) {
@@ -1591,6 +1616,14 @@
           subtitle: "Vui lòng chọn trường để kiểm tra!"
         });
         return;
+      }
+
+      // Khóa nút và đổi text để người dùng không bấm liên tục
+      const btn = document.getElementById(type === "checkin" ? "btnCheckMyIn" : "btnCheckMyOut");
+      const originalText = type === "checkin" ? "Kiểm tra check in" : "Kiểm tra check out";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ Đang kiểm tra...";
       }
 
       try {
@@ -1634,6 +1667,12 @@
           title: "LỖI KẾT NỐI",
           subtitle: err.message
         });
+      } finally {
+        // Mở lại nút bấm khi có phản hồi
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = originalText;
+        }
       }
     }
 
