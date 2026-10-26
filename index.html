@@ -37,6 +37,18 @@
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
+    /* Ép khung quét QR trên iPhone luôn nằm trọn trong ô hiển thị */
+    #qr-reader, #reader {
+      position: relative;
+      overflow: hidden !important;
+      border-radius: 1rem;
+    }
+    #qr-reader video, #reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 1rem;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 pb-28 select-none">
@@ -219,7 +231,7 @@
 
         <div class="pt-2 border-t border-indigo-200/60 text-[11px] text-slate-600 space-y-1.5 leading-snug">
           <p>Nếu SĐT bạn chưa được đăng ký, hãy điền đầy đủ form thông tin sau trước khi đăng nhập:</p>
-          <a href="https://khanhle90.github.io/dienthongtinnhansu/" target="_blank" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 px-3 rounded-lg font-bold flex items-center justify-center space-x-1 shadow-sm text-xs">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSc9aqh4aoGr5kzOTt0VxEWL8bZPDa9ByULx-dfMKBglZVSPFw/viewform?usp=sharing&ouid=118385751083342568492" target="_blank" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 px-3 rounded-lg font-bold flex items-center justify-center space-x-1 shadow-sm text-xs">
             <i class="ph ph-pencil-simple-line text-sm"></i>
             <span>Mở Form Đăng Ký Thông Tin</span>
           </a>
@@ -287,7 +299,7 @@
           </div>
 
           <div class="relative bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-slate-300">
-            <video id="selfieVideo" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover hidden"></video>
+            <video id="selfieVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
             <img id="selfiePreview" class="w-full h-full object-cover hidden" alt="" />
             <div id="cameraPlaceholder" class="text-slate-400 text-center p-4">
               <i class="ph ph-camera text-4xl mb-1"></i>
@@ -1424,13 +1436,6 @@
 
       try {
         selfieStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-        
-        // Ép cứng trình duyệt Safari trên iPhone chạy camera trực tiếp trong khung web
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
-        video.playsInline = true;
-        video.muted = true;
-
         video.srcObject = selfieStream;
         video.classList.remove("hidden");
         placeholder.classList.add("hidden");
@@ -1733,39 +1738,70 @@
       }
     }
 
-    async function startQrScannerAuto(schoolName, pin) {
-      if (!schoolName || !pin) return;
+    function startQrScannerAuto(schoolName, pin) {
+      const scannerContainer = document.getElementById("qr-reader") || document.getElementById("reader");
+      if (!scannerContainer) return;
+      const containerId = scannerContainer.id;
 
+      // 1. TỰ ĐỘNG KHÓA CỨNG THUỘC TÍNH NỘI TUYẾN NGAY KHI IPHONE VỪA TẠO VIDEO
+      if (window._qrVideoObserver) window._qrVideoObserver.disconnect();
+      window._qrVideoObserver = new MutationObserver(() => {
+        const video = scannerContainer.querySelector("video");
+        if (video) {
+          video.setAttribute("playsinline", "true");
+          video.setAttribute("webkit-playsinline", "true");
+          video.setAttribute("muted", "true");
+          video.playsInline = true;
+          video.muted = true;
+        }
+      });
+      window._qrVideoObserver.observe(scannerContainer, { childList: true, subtree: true });
+
+      // 2. KHỞI TẠO VÀ BẬT CAMERA QUÉT
       if (html5QrScanner) {
-        try { await html5QrScanner.stop(); html5QrScanner.clear(); } catch(e){}
-        html5QrScanner = null;
+        try {
+          html5QrScanner.stop().catch(() => {}).then(() => initScanner());
+        } catch (e) {
+          initScanner();
+        }
+      } else {
+        initScanner();
       }
 
-      html5QrScanner = new Html5Qrcode("reader", {
-        formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
-        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
-        verbose: false
-      });
+      function initScanner() {
+        html5QrScanner = new Html5Qrcode(containerId);
+        const config = {
+          fps: 15,
+          videoConstraints: {
+            facingMode: "environment",
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          },
+          qrbox: function(w, h) {
+            const s = Math.floor(Math.min(w, h) * 0.85);
+            return { width: s, height: s };
+          },
+          aspectRatio: 1.0
+        };
 
-      const config = {
-        fps: 15, // Giảm từ 25 xuống 15 để CPU điện thoại không bị quá tải
-        videoConstraints: {
-          facingMode: "environment",
-          width: { ideal: 640 }, // Hạ độ phân giải phân tích xuống 640x480 để đọc mã trong 0.05s
-          height: { ideal: 480 },
-          advanced: [{ focusMode: "continuous" }] // Tự động lấy nét liên tục giống app ngân hàng
-        },
-        qrbox: function(w, h) {
-          const s = Math.floor(Math.min(w, h) * 0.85);
-          return { width: s, height: s };
-        },
-        aspectRatio: 1.0
-      };
-
-      try {
-        await html5QrScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
-      } catch (err) {
-        document.getElementById("reader").innerHTML = `<span class="text-rose-500 p-4 text-center">Không thể mở camera quét: ${err}</span>`;
+        html5QrScanner.start(
+          { facingMode: "environment" },
+          config,
+          onScanSuccess,
+          (err) => {} // Bỏ qua lỗi bắt khung hình khi chưa thấy mã
+        ).then(() => {
+          // Khóa bổ sung một lần nữa sau khi luồng camera kết nối thành công
+          const video = scannerContainer.querySelector("video");
+          if (video) {
+            video.setAttribute("playsinline", "true");
+            video.setAttribute("webkit-playsinline", "true");
+            video.setAttribute("muted", "true");
+            video.playsInline = true;
+            video.muted = true;
+          }
+        }).catch(err => {
+          console.error("Lỗi bật camera quét:", err);
+        });
       }
     }
 
