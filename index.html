@@ -287,7 +287,7 @@
           </div>
 
           <div class="relative bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-slate-300">
-            <video id="selfieVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
+            <video id="selfieVideo" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover hidden"></video>
             <img id="selfiePreview" class="w-full h-full object-cover hidden" alt="" />
             <div id="cameraPlaceholder" class="text-slate-400 text-center p-4">
               <i class="ph ph-camera text-4xl mb-1"></i>
@@ -1424,6 +1424,13 @@
 
       try {
         selfieStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        
+        // Ép cứng trình duyệt Safari trên iPhone chạy camera trực tiếp trong khung web
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.playsInline = true;
+        video.muted = true;
+
         video.srcObject = selfieStream;
         video.classList.remove("hidden");
         placeholder.classList.add("hidden");
