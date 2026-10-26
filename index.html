@@ -485,10 +485,14 @@
       </div>
 
       <div id="adminDashboard" class="space-y-4 hidden">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-          <h3 id="adminFormTitle" class="text-sm font-bold text-slate-800 mb-3 border-b pb-2">Tạo Mới Chương Trình</h3>
+        <!-- FORM TẠO / SỬA CHƯƠNG TRÌNH -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6">
+          <h3 id="adminFormTitle" class="text-base font-bold text-slate-800 mb-3">Tạo Mới Chương Trình</h3>
+          <!-- Thẻ ẩn lưu ID khi sửa, thẻ này tàng hình không chiếm chỗ -->
           <input type="hidden" id="adminProgId">
-          <div class="space-y-2.5">
+
+          <div class="space-y-3">
+            <!-- 1. Tên trường -->
             <div>
               <div class="flex justify-between items-center mb-1">
                 <label class="block text-xs font-semibold text-slate-600">Tên chương trình / Trường</label>
@@ -501,25 +505,33 @@
               <datalist id="adminProgSuggestions"></datalist>
               <p class="text-[10px] text-slate-400 mt-1 italic">* Bấm đúp vào ô để xem toàn bộ file đã có trong Drive</p>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+
+            <!-- 2. Ngày bắt đầu & Ngày kết thúc -->
+            <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Ngày thực hiện</label>
-                <input type="date" id="adminProgStart" onchange="autoFillEndDate()" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300">
+                <input type="date" id="adminProgStart" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Ngày kết thúc</label>
-                <input type="date" id="adminProgEnd" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300">
+                <input type="date" id="adminProgEnd" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
               </div>
             </div>
+
+            <!-- 3. Mã bảo mật -->
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Mã bảo mật (Dành cho Quản lý quét)</label>
-              <input type="text" id="adminProgPin" placeholder="Mã số bí mật (ví dụ: 6868)" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300">
+              <input type="text" id="adminProgPin" placeholder="Mã số bí mật (ví dụ: 6868)" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
             </div>
-            <div class="flex gap-2 pt-2">
-              <button onclick="saveAdminProgram()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-lg font-bold shadow">
+
+            <!-- 4. Hàng nút Lưu & Hủy (Đặt ở dưới cùng của Form) -->
+            <div class="flex items-center space-x-2 pt-2">
+              <button type="button" id="btnSaveProgram" onclick="saveProgram()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-colors shadow-sm">
                 Lưu Chương Trình
               </button>
-              <button onclick="resetAdminForm()" class="bg-slate-200 text-slate-700 text-xs px-4 py-2.5 rounded-lg font-medium">Hủy</button>
+              <button type="button" onclick="resetAdminForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors">
+                Hủy
+              </button>
             </div>
           </div>
         </div>
@@ -2289,12 +2301,21 @@
     }
 
     function resetAdminForm() {
-      document.getElementById("adminProgId").value = "";
-      document.getElementById("adminProgName").value = "";
-      document.getElementById("adminProgStart").value = "";
-      document.getElementById("adminProgEnd").value = "";
-      document.getElementById("adminProgPin").value = "";
-      document.getElementById("adminFormTitle").innerText = "Tạo Mới Chương Trình";
+      const elId = document.getElementById("adminProgId");
+      const elName = document.getElementById("adminProgName");
+      const elStart = document.getElementById("adminProgStart");
+      const elEnd = document.getElementById("adminProgEnd");
+      const elPin = document.getElementById("adminProgPin");
+      const elTitle = document.getElementById("adminFormTitle");
+      const btnSubmit = document.getElementById("btnSaveProgram");
+
+      if (elId) elId.value = "";
+      if (elName) elName.value = "";
+      if (elStart) elStart.value = "";
+      if (elEnd) elEnd.value = "";
+      if (elPin) elPin.value = "";
+      if (elTitle) elTitle.innerText = "Tạo Mới Chương Trình";
+      if (btnSubmit) btnSubmit.innerText = "Lưu Chương Trình";
     }
     // HÀM TẢI DANH SÁCH GỢI Ý TỪ CÁC FILE TRONG THƯ MỤC DRIVE
     async function loadDriveProgramSuggestions() {
@@ -2356,6 +2377,50 @@
       `).join("");
     }
 
+    // HÀM MỞ CHẾ ĐỘ CHỈNH SỬA CHƯƠNG TRÌNH
+    function editProgram(id) {
+      // 1. Tìm chương trình trong danh sách allPrograms
+      const p = allPrograms.find(item => String(item.id) === String(id));
+      if (!p) {
+        alert("Không tìm thấy thông tin chương trình để sửa!");
+        return;
+      }
+
+      // Hàm phụ trợ chuyển ngày về định dạng YYYY-MM-DD cho ô input type="date"
+      function formatToDateInput(val) {
+        if (!val) return "";
+        const str = String(val).trim();
+        if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.substring(0, 10);
+        if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(str)) {
+          const parts = str.split("/");
+          return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+        const d = new Date(val);
+        return !isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "";
+      }
+
+      // 2. Điền thông tin cũ vào các ô nhập
+      const elId = document.getElementById("adminProgId");
+      const elName = document.getElementById("adminProgName");
+      const elStart = document.getElementById("adminProgStart");
+      const elEnd = document.getElementById("adminProgEnd");
+      const elPin = document.getElementById("adminProgPin");
+      const elTitle = document.getElementById("adminFormTitle");
+      const btnSubmit = document.getElementById("btnSaveProgram");
+
+      if (elId) elId.value = p.id;
+      if (elName) elName.value = p.name || "";
+      if (elStart) elStart.value = formatToDateInput(p.startDate);
+      if (elEnd) elEnd.value = formatToDateInput(p.endDate || p.startDate);
+      if (elPin) elPin.value = p.pin || "";
+
+      // 3. Đổi giao diện sang trạng thái đang sửa
+      if (elTitle) elTitle.innerText = `Chỉnh Sửa: ${p.name}`;
+      if (btnSubmit) btnSubmit.innerText = "Cập Nhật Chương Trình";
+
+      // 4. Cuộn màn hình lên đầu để Quản lý nhìn thấy form
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     // HÀM XỬ LÝ XÓA CHƯƠNG TRÌNH
     async function deleteProgram(id, name) {
       if (!confirm(`Bạn có chắc chắn muốn xóa chương trình "${name}" khỏi hệ thống?`)) {
